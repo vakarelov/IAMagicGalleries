@@ -1,0 +1,18 @@
+{"sizeBehaviour"=> "linked",
+  "leftSize"=> 0,
+  "topSize"=> 0,
+  "rightSize"=> 0,
+  "bottomSize"=> 0,
+  "panelWidth"=> 800,
+  "panelHeight"=> 500,
+  "slideBar"=> false, 
+  "positionDisplay"=> true,
+  "zoomControls"=> false,
+  "messageBox"=> ["x"=> 10, "y"=> -5, "time"=> 5000],
+  "noDesignBackground"=> true,
+  "processInlineImgsets"=> true,
+  "processDelayedImages"=> true,
+  "mouseNavigation"=> false,
+  "skip_splash_screen"=> true,
+  "slideBarSize"=> 15
+}

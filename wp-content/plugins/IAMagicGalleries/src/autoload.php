@@ -1,0 +1,23 @@
+<?php
+/**
+ * Copyright (c) 2018.  Orlin Vakarelov
+ */
+
+/**
+ * @package php-svg-lib
+ * @link    http://github.com/PhenX/php-svg-lib
+ * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ */
+
+//include_once __DIR__ . "/../vendor/autoload.php";
+
+spl_autoload_register(function ($class) {
+    if (0 === strpos($class, "IAMagicGalleries")) {
+        $file = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+        $file = realpath(__DIR__ . DIRECTORY_SEPARATOR . $file . '.php');
+        if (file_exists($file)) {
+            include_once $file;
+        }
+    }
+});

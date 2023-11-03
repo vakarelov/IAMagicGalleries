@@ -1,0 +1,76 @@
+{
+  //comment
+  "version": 0.1,
+  // This is used for debugging, whether to skip a controller
+  "skip": {
+    "presenter_contr": false
+  },
+  "presenter_contr": {
+    "iconResource": "presenter.svg",
+    "functionResource": [
+      "scripts/presenter.js",
+      "scripts/presenterEffects.js",
+      "scripts/galleryEffects.js"
+    ],
+    "init": "presenterInit",
+    //The group where to place the controller GUI
+    "group": "right",
+    // Embed the controller in the group, changing the panel dimentions
+    "embedded": true,
+    // Position of the controller relative to the group. If right group, the position is of the top right corner.
+    "position": {
+      "x": 50,
+      "y": -20
+    },
+    //The corner point in the controller to use for pisition: tl, tr, bl, br, c
+    "corner": "tl",
+    //whether to display by default. I causes controller.{name}.open or closed even (respetivly) to be fired after creation.
+    "activeDefault": false,
+    //The properties of the controller.
+    "properties": [],
+    //Settings passed to the init method
+    "settings": {},
+    "button": {
+      "presenter_backward": {
+        "activeIcon": "presenter_backward",
+        "inactiveIcon": "empty",
+        "events": {
+          "activate": "presenter backward",
+          "mouse": {
+            "click": "presenter.backward",
+            "longPress": "presenter.home"
+          }
+        },
+        "activeDefault": false,
+        "place": "bottom",
+        "position": {
+          "x": 5,
+          "y": -40
+        },
+        "width": 20,
+        "opacity": 0.3,
+        "message": "Previous Slide. Long-click to got to first slide."
+      },
+      "presenter_forward": {
+        "activeIcon": "presenter_forward",
+        "inactiveIcon": "empty",
+        "events": {
+          "activate": "presenter_forward",
+          "mouse": {
+            "click": "presenter.forward",
+            "longPress": "presenter.end"
+          }
+        },
+        "activeDefault": false,
+        "place": "bottom",
+        "position": {
+          "x": 35,
+          "y": -40
+        },
+        "width": 20,
+        "opacity": 0.3,
+        "message": "Next Slide. Long-click to got to last slide."
+      }
+    }
+  }
+}

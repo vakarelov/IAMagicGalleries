@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$/../../..">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../google-analytics-for-wordpress/includes/gutenberg/headline-tool/phpinsight/lib" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../w3-total-cache" isTestSource="false" packagePrefix="W3TC" />
+      <sourceFolder url="file://$MODULE_DIR$/../w3-total-cache/inc" isTestSource="false" packagePrefix="W3TC" />
+      <sourceFolder url="file://$MODULE_DIR$/../w3-total-cache/lib" isTestSource="false" packagePrefix="W3TCL" />
+      <sourceFolder url="file://$MODULE_DIR$/../w3-total-cache/lib/Azure" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../wp-mail-smtp/src" isTestSource="false" packagePrefix="WPMailSMTP" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../wp-includes" isTestSource="false" packagePrefix="PHPMailer" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

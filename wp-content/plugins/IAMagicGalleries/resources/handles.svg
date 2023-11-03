@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="Layer_1" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="100px" height="100px"
+	 viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve">
+<g id="move_handle">
+	<rect x="2.021" y="2.892" fill="#FFCCAA" fill-opacity="0" width="20" height="10"/>
+	
+		<path id="_x34__x5F_arrows" opacity="0.967" fill="#FFCCAA" stroke="#000000" stroke-width="0.9299" enable-background="new    " d="
+		M21.774,13.053l-4.06-3.748v1.874h-3.983V7.198h1.875l-3.748-4.061L8.383,7.198h1.874v3.981H6.314V9.305l-4.06,3.748l4.06,3.475
+		v-1.874h3.982v3.982H8.422l3.436,4.021l3.748-4.06h-1.875v-3.981h3.982v1.873L21.774,13.053L21.774,13.053z"/>
+</g>
+<g id="rotate_handle">
+	<circle fill="#FFCCAA" fill-opacity="0" cx="38.15" cy="12.897" r="10"/>
+	<path id="round_arrows" fill="#FFCCAA" stroke="#000000" stroke-width="0.9524" d="M47.517,15.401H41.27
+		c-0.345,0-0.625,0.28-0.625,0.625c0,0.345,0.326,0.586,0.593,0.853l1.736,1.735c-1.303,1.105-2.985,1.779-4.828,1.779
+		c-3.713,0-6.788-2.703-7.383-6.247h-2.525c0.615,4.929,4.812,8.745,9.908,8.745c2.534,0,4.844-0.947,6.604-2.503l1.79,1.789
+		c0.336,0.337,0.632,0.72,0.977,0.72c0.345,0,0.625-0.28,0.625-0.625v-6.246C48.141,15.95,48.141,15.401,47.517,15.401z
+		 M28.775,10.393h6.247c0.345,0,0.625-0.28,0.625-0.625c0-0.345-0.326-0.586-0.593-0.853L33.318,7.18
+		c1.304-1.105,2.986-1.778,4.83-1.778c3.713,0,6.788,2.702,7.383,6.246h2.525c-0.618-4.929-4.815-8.745-9.91-8.745
+		c-2.534,0-4.844,0.947-6.604,2.503l-1.79-1.789c-0.336-0.337-0.633-0.72-0.977-0.72s-0.625,0.28-0.625,0.625v6.246
+		C28.15,9.844,28.15,10.393,28.775,10.393z"/>
+</g>
+</svg>

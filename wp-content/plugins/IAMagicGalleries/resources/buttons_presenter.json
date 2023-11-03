@@ -1,0 +1,129 @@
+{
+  "video_fullscreen": {
+    "iconResource": "presenter.svg",
+    "activeIcon": "Video_fullscreen_on",
+    "inactiveIcon": "empty",
+    "events": {
+      "activate": true,
+      "mouse": {
+        "click": "_presenter.video_fullscreen_on"
+      }
+    },
+    "place": "brcorner",
+    "position": {
+      "x": -115,
+      "y": -40
+    },
+    "width": 20,
+    "opacity": 0.3,
+    "activeDefault": false,
+    "message": "Video Fullscreen"
+  },
+  //  "stop_reset": {
+  //    "iconResource": "presenter.svg",
+  //    "activeIcon": "stop_av",
+  //    "inactiveIcon": "none",
+  //    "events": {
+  //      "activate": true,
+  //      "mouse": {
+  //        "click": "_presenter.av_reset"
+  //      }
+  //    },
+  //    "place": "brcorner",
+  //    "position": {
+  //      "x": -120,
+  //      "y": -40
+  //    },
+  //    "width": 20,
+  //    "opacity": 0.3,
+  //    "activeDefault": false,
+  //    "message": "Stop/Restart"
+  //  },
+  "play_pause": {
+    "iconResource": "presenter.svg",
+    "activeIcon": {
+      "states": [
+        "play_av",
+        "pause_av"
+      ],
+      "state_events": [
+        "_presenter.pause",
+        "_presenter.play"
+      ],
+      "icons": [
+        "play_av",
+        "pause_av"
+      ],
+      "size": 30
+    },
+    "type": "toggle",
+    "inactiveIcon": "empty",
+    "events": {
+      "activate": true
+    },
+    "place": "brcorner",
+    "position": {
+      "x": -90,
+      "y": -40
+    },
+    "width": 20,
+    "opacity": 0.3,
+    "activeDefault": false,
+    "message": "Play/Pause Sound and Video"
+  },
+  "mute": {
+    "iconResource": "presenter.svg",
+    "activeIcon": {
+      "states": [
+        "play",
+        "mute"
+      ],
+      "state_events": [
+        "_presenter.unmute",
+        "_presenter.mute"
+      ],
+      "icons": [
+        "sound_on",
+        "sound_off"
+      ],
+      "size": 30
+    },
+    "type": "toggle",
+    "inactiveIcon": "empty",
+    "events": {
+      "activate": true
+    },
+    "place": "brcorner",
+    "position": {
+      "x": -70,
+      "y": -40
+    },
+    "width": 20,
+    "opacity": 0.3,
+    "activeDefault": false,
+    "message": "Mute/Unmute Sound"
+  },
+  "full_screen": {
+    "iconResource": "presenter.svg",
+    "activeIcon": "full_screen_button",
+    "inactiveIcon": "",
+    "events": {
+      //      "activate": "full_screen_active",
+      "mouse": {
+        "click": "full_screenAction"
+      }
+    },
+    "place": "brcorner",
+    "position": {
+      "x": -40,
+      "y": -40
+    },
+    "width": 20,
+    "opacity": 0.3,
+    "activeDefault": true,
+    "order": 5,
+    "functionResource": "scripts/buttonEvents_presenter.js",
+    "message": "Full Screen"
+  }
+
+}
