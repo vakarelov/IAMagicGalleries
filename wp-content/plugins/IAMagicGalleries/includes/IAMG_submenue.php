@@ -1,5 +1,10 @@
 <?php
 /*
+ * Copyright © ${YEAR}  Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
+ */
+
+/*
  *
  *  * Copyright (c) 2021. Orlin Vakarelov
  *
@@ -59,12 +64,11 @@ class IAMG_Submenue
         if (!$pres) {
             $render_post = "<div>Overview Presentation has not been loaded properly</div>";
         } else {
-            $render_post = IAMG_posttype::render_post(base64_encode($pres), 'fixed', null, "height:90vh;");
+            $render_post = IAMG_posttype::render_post($pres, 'fixed', null, "height:90vh;");
         }
 
         ?>
         <div class="wrap">
-            <h2>IA Magic Galleries</h2>
             <?php
             echo $render_post;
             ?>
@@ -84,11 +88,10 @@ class IAMG_Submenue
         if (!$pres) {
             $render_post = "<div>Help Presentation has not been loaded properly</div>";
         } else {
-            $render_post = IAMG_posttype::render_post(base64_encode($pres), 'fixed', null, "height:90vh;");
+            $render_post = IAMG_posttype::render_post($pres, 'fixed', null, "height:90vh;");
         }
         ?>
         <div class="wrap">
-            <h2>IA Magic Galleries Help</h2>
             <?php
             echo $render_post;
             ?>

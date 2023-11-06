@@ -1,4 +1,8 @@
 <?php
+/*
+ * Copyright © ${YEAR}  Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
+ */
 
 use IAMagicGalleries\Client;
 use IAMagicGalleries\ImageHandler;
@@ -38,7 +42,7 @@ function run_test()
 
 //    $response = $client->register_client();
 
-//    $response =  $client->update_app_script();
+    $response =  $client->update_app_script();
 
 //    wp_send_json($response);
 //
@@ -89,10 +93,6 @@ function run_test()
 //    $response[] = $client->get_resource('res2');
 //    $response[] = $client->get_resource('res3');
 
-
-
-    do_action('iamg_tmp');
-    $response = get_option('iamagicgalleries_resource_version_res2');
     wp_send_json($response);
 }
 

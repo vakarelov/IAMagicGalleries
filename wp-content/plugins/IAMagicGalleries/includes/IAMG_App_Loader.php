@@ -1,10 +1,8 @@
 <?php
 /*
- *
- *  * Copyright (c) 2021. Orlin Vakarelov
- *
+ * Copyright © ${YEAR}  Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
  */
-
 
 if (!defined('WPINC')) {
     die;
@@ -372,14 +370,22 @@ class IAMG_App_Loader
      */
     private function enque_styles(): void
     {
-        wp_enqueue_style(
-            'iamg-def-styles',
-            IAMG_URL . 'css/ia_designer_general.css'
-        );
-        wp_enqueue_style(
-            'iamg-def-styles',
-            IAMG_URL . 'css/ia_presenter_general.css'
-        );
+        if (WP_DEBUG) {
+            wp_enqueue_style(
+                'iamg-def-styles',
+                IAMG_URL . 'css/ia_designer_general.css'
+            );
+            wp_enqueue_style(
+                'iamg-def-styles',
+                IAMG_URL . 'css/ia_presenter_general.css'
+            );
+        } else{
+            wp_enqueue_style(
+                'iamg-def-styles',
+                IAMG_URL . 'css/ia_general.min.css'
+            );
+        }
+
         if (is_admin()) {
             wp_enqueue_style(
                 'iamg-admin-styles',

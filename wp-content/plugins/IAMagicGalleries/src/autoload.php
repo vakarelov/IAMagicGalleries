@@ -1,16 +1,8 @@
 <?php
-/**
- * Copyright (c) 2018.  Orlin Vakarelov
+/*
+ * Copyright © ${YEAR}  Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
  */
-
-/**
- * @package php-svg-lib
- * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
-
-//include_once __DIR__ . "/../vendor/autoload.php";
 
 spl_autoload_register(function ($class) {
     if (0 === strpos($class, "IAMagicGalleries")) {

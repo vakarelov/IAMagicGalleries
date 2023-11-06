@@ -1,5 +1,8 @@
 <?php
-/* @@copyright@ */
+/*
+ * Copyright © ${YEAR}  Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
+ */
 
 require_once(IAMG_CLASSES_PATH . "Client.php");
 require_once(IAMG_CLASSES_PATH . 'AdminNotice.php');
@@ -125,8 +128,9 @@ class IAMG_Activation
     {
         $ip = $this->get_caller_ip();
 
-        //Do not remove this IP addresses. The SAS server will not be able to connect to the plugin
-        // to verify
+        //Do not remove these IP addresses. The SAS server will not be able to connect to the plugin
+        // to verify it and the many not be able to update the app library if needed.
+        // The addresses ensure that no other client can access the plugin to initiate the operation.
         $allow_addresses = [
             '107.161.24.204', //iaesth.ca
             '192.184.90.53', //infoaesthetics.ca
@@ -141,13 +145,16 @@ class IAMG_Activation
             die();
         };
 
-        $responce = ["plugin" => $this->client->basename, "wp_url" => esc_url(home_url())];
+        $responce = [
+            "plugin" => $this->client->basename,
+            "wp_url" => esc_url(home_url()),
+            "secret" => $this->client->encrypt($this->client->basename)];
 
         if ((isset($_POST["update_app"]) && $_POST["update_app"])
             || (isset($_GET["update_app"]) && $_GET["update_app"])
         ) {
             $responce["updating"] = true;
-            //asks the plugin to get an updated app library from the server immediately as opposed to following the regular schedule. Useful if security vulnerability is detected
+            //asks the plugin to get an updated app library from the server immediately as opposed to following the regular schedule. Useful if security vulnerability is detected.
             //TODO: implement version restriction
             $this->run_after_send_json($responce, [$this, 'update_app']);  //exists the call
         } else {

@@ -1,5 +1,8 @@
 <?php
-/* @@copyright@ */
+/*
+ * Copyright © ${YEAR}  Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
+ */
 
 namespace IAMagicGalleries;
 
@@ -126,6 +129,8 @@ class Client
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
         $plugin_data = get_plugin_data($this->file);
+
+        $this->basename = plugin_basename(IAMG_PATH . "IAMagic-galleries.php");
 
         $this->project_version = $plugin_data['Version'];
         $this->type = 'plugin';
@@ -907,7 +912,7 @@ class Client
         }
     }
 
-    private function save_resource(int|string $name, mixed $resource, mixed $version = null)
+    private function save_resource($name, mixed $resource, mixed $version = null)
     {
         $option = IAMG_SLUG . self::RESOURCE . $name;
         update_option($option, $resource, false);

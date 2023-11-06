@@ -1,5 +1,8 @@
 <?php
-/* @@copyright@ */
+/*
+ * Copyright © ${YEAR}  Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
+ */
 
 if (!defined('WPINC')) {
     exit;
@@ -72,7 +75,7 @@ class IAMG_posttype
             'description' => __('IA Magic Galleries, dynamic galleries for you site', 'IAMG'),
 
             'rewrite' => false, //array('slug' => 'gallery', 'with_front' => true),
-            'public' => false,
+            'public' => true,
             'has_archive' => false,
             'hierarchical' => false,
             'supports' => $supportArray,
@@ -515,12 +518,14 @@ class IAMG_posttype
         $columns
     ) {
         //todo: add tumbnail support
-        return array_slice($columns, 0, 1, true) +
+
+        $var = array_slice($columns, 0, 1, true) +
 //            ['icon' => ''] +
             array_slice($columns, 1, null, true) + [
                 IAMG_POST_TYPE . '_media_count' => __('Media', 'iamg'),
                 IAMG_POST_TYPE . '_shortcode' => __('Shortcode', 'iamg')
             ];
+        return $var;
 //        return array_slice( $columns, 0, 1, true ) +
 //            array( 'icon' => '' ) +
 //            array_slice( $columns, 1, null, true ) +
@@ -583,9 +588,11 @@ class IAMG_posttype
 //                if ( $html_img ) {
 //                    echo $html_img;
 //                }
-//                break;
+                break;
+
         }
     }
+
 
     private
     function add_admin_styles()

@@ -1,5 +1,10 @@
 <?php
 /*
+ * Copyright © ${YEAR}  Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
+ */
+
+/*
  *
  *  * Copyright (c) 2021. Orlin Vakarelov
  *
@@ -310,11 +315,10 @@ class ImageHandler
         if ($album && strtolower($album) !== "all") {
             $media = $this->get_images_from_album($album);
         }
-//        wp_send_json(["here2", $media]);
 
-        $part = array_slice($media
-            , $start, $number);
+        $part = array_slice($media, $start, $number);
 
+//        wp_send_json(["here2", $start, $number,  $part]);
 
         if ($video) {
             return $part;

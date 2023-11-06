@@ -1,4 +1,8 @@
 <?php
+/*
+ * Copyright © ${YEAR}  Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
+ */
 
 /*
 Plugin Name: IA Magic Galleries
@@ -80,54 +84,7 @@ require_once IAMG_INCLUDES_PATH . 'IAMG_App_Loader.php';
 
 
 //For testing
-require_once IAMG_PATH . '/test/test.php';
+//require_once IAMG_PATH . '/_test/test.php';
 
 
-//
-//function iamg_test_post( $data ) {
-//	$data = preg_replace_callback( "/\*IA_Magic_gallery_svg_content_(\d+)\*/", function ( $matches ) {
-//		if ( $matches ) {
-//			return "We found " . $matches[1];
-//		}
-//	}, $data );
-//
-//	return $data;
-//}
 
-
-//add_action('the_content', 'add_presentations');
-
-
-;
-//add_action('content_save_pre', 'iamg_test_post');
-
-
-/* To make your block "dynamic" uncomment
-  the code below and in your JS have your "save"
-  method return null
-*/
-
-/*
-function borderBoxOutput($props) {
-  return '<h3 style="border: 5px solid' . $props['color'] . '">' . $props['content'] . '</h3>';
-}
-
-register_block_type( 'brad/border-box', array(
-  'render_callback' => 'borderBoxOutput',
-) );
-*/
-
-/* To Save Post Meta from your block uncomment
-  the code below and adjust the post type and
-  meta name values accordingly. If you want to
-  allow multiple values (array) per meta remove
-  the 'single' property.
-*/
-
-/*
-function myBlockMeta() {
-  register_meta('post', 'color', array('show_in_rest' => true, 'type' => 'string', 'single' => true));
-}
-
-add_action('init', 'myBlockMeta');
-*/
