@@ -10,6 +10,11 @@
  */
 
 /*
+ * Copyright © 2023 Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
+ */
+
+/*
 Plugin Name: IA Magic Galleries
 Plugin URI: http://URI_Of_Page_Describing_Plugin_and_Updates
 Description: A brief description of the Plugin.

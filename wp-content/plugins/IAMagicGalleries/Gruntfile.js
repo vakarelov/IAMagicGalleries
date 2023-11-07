@@ -9,6 +9,11 @@
  */
 
 /*
+ * Copyright © 2023 Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
+ */
+
+/*
  * Copyright (c) 2018.  Orlin Vakarelov
  */
 
@@ -57,6 +62,7 @@ module.exports = function (grunt) {
                     'js/parent_style_setter.min.js': 'js/parent_style_setter.js',
                 },
             },
+
         },
 
         cssmin: {
@@ -66,7 +72,28 @@ module.exports = function (grunt) {
                     'css/ia_presenter_admin.min.css': ['css/ia_presenter_admin.css'],
                 },
             },
-        }
+        },
+
+        copy: {
+            main: {
+                expand: true,
+                src: ['**/*', '!**/*.psd', '!resources/**', '!node_modules/**', '!Gruntfile.js', '!package.json', '!package-lock.json', '!composer.json', '!composer.lock', '!log.txt','!notes/**'],
+                dest: 'C:/Users/okv/Desktop/IAMG/',
+                filter: function (filepath) {
+                    // Use a filter function to exclude files and directories starting with a dot or underscore
+                    let test = !/^_.*|.*\\_.*/.test(filepath) && !/^\..*|.*\\\..*/.test(filepath)
+                    && !filepath.startsWith('resources\\iamg');
+                    console.log(filepath, test);
+                    return test;
+                },
+            },
+            resources: {
+                expand: false,
+                src: ['resources/index.php', 'resources/process.php', 'resources/loading.gif',],
+                dest: 'C:/Users/okv/Desktop/IAMG/',
+            },
+        },
+
     });
 
     grunt.loadNpmTasks('grunt-browserify');
@@ -82,4 +109,6 @@ module.exports = function (grunt) {
     grunt.registerTask('default', [
         // 'concat',
         'uglify', 'cssmin']);
+
+    grunt.registerTask('produce', ['copy']);
 };

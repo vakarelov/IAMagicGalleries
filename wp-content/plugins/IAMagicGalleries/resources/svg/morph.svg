@@ -1,73 +1,10 @@
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 1168.7 538.7" style="enable-background:new 0 0 1168.7 538.7;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:none;}
-	.st1{font-family:'CourierNewPSMT';}
-	.st2{font-size:12px;}
-	.st3{font-family:'ArialMT';}
-	.st4{fill:none;stroke:#C0C0C0;}
-	.st5{display:none;}
-	.st6{display:inline;fill:none;stroke:#000000;stroke-width:0.5693;stroke-miterlimit:10;}
-	.st7{display:inline;fill:none;stroke:#00FF00;stroke-width:0.5693;stroke-miterlimit:10;}
-	.st8{display:inline;fill:none;stroke:#0000FF;stroke-width:0.5693;stroke-miterlimit:10;}
-	.st9{fill:none;stroke:#000000;stroke-width:0.5693;stroke-miterlimit:10;}
-	.st10{fill:none;stroke:#00FF00;stroke-width:0.5693;stroke-miterlimit:10;}
-	.st11{fill:none;stroke:#0000FF;stroke-width:0.5693;stroke-miterlimit:10;}
-	.st12{display:inline;fill:none;stroke:#FF2727;stroke-width:0.5693;stroke-miterlimit:10;}
-	.st13{display:inline;fill:none;stroke:#30459C;stroke-miterlimit:10;}
-	.st14{display:inline;fill:none;stroke:#0C8040;stroke-width:0.5693;stroke-miterlimit:10;}
-</style>
-<g id="IA_Designer_Presenter_Def">
-	<g id="settings">
-		<text transform="matrix(1 0 0 1 22.7857 470.5178)" class="st0 st1 st2">auto: on, //whether to start automatically   </text>
-		<text transform="matrix(1 0 0 1 22.7857 484.9182)" class="st0 st1 st2">loop: on, //start from the beginning when get to the end</text>
-		<text transform="matrix(1 0 0 1 426.0517 484.9182)" class="st0 st3 st2">   </text>
-		<text transform="matrix(1 0 0 1 22.7857 499.3176)" class="st0 st1 st2">hide_elements: off, //hide presentation element after transition to a new slide</text>
-		<text transform="matrix(1 0 0 1 22.7857 513.718)" class="st0 st1 st2">back: end  //whether backtracking goes to the end or start of a slide  </text>
-	</g>
-	<g id="view1">
-		<rect class="st4" width="500" height="500"/>
-		
-			<g id="_x2D_-morph_x5F_x5F_x5F_test3_x5F_x2C_x5F_0_x5F_x2C_x5F_paths:p1:p2_x5F_x2C_x5F_emph:morph:3s::1:path_x5F_x5F_x5F_chain:p1:p2:color:hsl" class="st5">
-			<path id="s_1_" class="st6" d="M295.3,98c-2.4-15.7-2.8-34.7,47.8-41.6s98.5,61.5,98.5,61.5s29.6,30.2,9.1,48.4s-55.6-2.6-74-4.6
-				c-13.4-1.5-42.8,8-54.1,0.6C308,152.7,298,115.2,295.3,98z"/>
-			<path id="p1_1_" class="st7" d="M283.9,80.3c5.9-14.7,39.9-10.2,90.5-17.1s90.8,31.9,67.2,54.7c-15.4,14.8-27.3-4-47.8,14.2
-				s1.4,31.6-17.1,29.6c-13.4-1.5-42.8,8-54.1,0.6C308,152.7,270.8,113.3,283.9,80.3z"/>
-			<path id="p2_1_" class="st8" d="M303.8,103.1c11.7-10.6,12-40.4,46.1-22.8c45.4,23.5,64.8,25.4,86.5,13.7
-				c13.7-7.4,34.7,54.1,14.2,72.3s-64.5-31.5-74.6-15.9c-7.4,11.4-57.6,26.2-68.9,18.8C292.6,159.6,278.8,125.9,303.8,103.1z"/>
-		</g>
-		
-			<g id="_x2D_-morph_x5F_x5F_x5F_test2_x5F_x2C_x5F_0_x5F_x2C_x5F_paths:p1:p2_x5F_x2C_x5F_emph:morph:3s::1:path_x5F_x5F_x5F_chain:p1:p2:color:hsv" class="st5">
-			<path id="s_2_" class="st6" d="M175.1,263.4c-2.4-15.7-2.8-34.7,47.8-41.6c50.7-6.8,98.5,61.5,98.5,61.5s29.6,30.2,9.1,48.4
-				c-20.5,18.2-55.6-2.6-74-4.6c-13.4-1.5-42.8,8-54.1,0.6C187.8,318.2,177.8,280.7,175.1,263.4z"/>
-			<path id="p1_2_" class="st7" d="M163.7,245.8c5.9-14.7,39.9-10.2,90.5-17.1c50.7-6.8,90.8,31.9,67.2,54.7
-				c-15.4,14.8-27.3-4-47.8,14.2s1.4,31.6-17.1,29.6c-13.4-1.5-42.8,8-54.1,0.6C187.8,318.2,150.6,278.8,163.7,245.8z"/>
-			<path id="p2_2_" class="st8" d="M183.6,268.6c11.7-10.6,12-40.4,46.1-22.8c45.4,23.5,64.8,25.4,86.5,13.7
-				c13.7-7.4,34.7,54.1,14.2,72.3c-20.4,18.2-64.4-31.5-74.5-16c-7.4,11.4-57.6,26.2-68.9,18.8C172.4,325,158.6,291.3,183.6,268.6z"
-				/>
-		</g>
-		<g id="morph_x5F_test_x2C_0_x2C_paths:p1:p2_x2C_emph:morph:3s::1:path_x5F_chain:p1:p2:color">
-			<path id="s1" class="st9" d="M50.9,89.8c-2.4-15.7-3.3-41.1,47.8-41.6c27.9,26.9,79.8,39.3,98.5,61.5c7.9,9.4,12.2,25.2,9.1,48.4
-				c-25.8,15.6-54.4,2.3-74-4.6c-12.8-4.4-42.8,8-54.1,0.6C78.9,129.2,53.6,107,50.9,89.8z"/>
-			<path id="p1" class="st10" d="M42.3,72.1C48.2,57.4,132.8,55,132.8,55s68.6,27.8,67.2,54.7c-15.4,14.8-27.3-4-47.8,14.2
-				s1.4,31.6-17.1,29.6c-13.4-1.5-42.8,8-54.1,0.6C76.9,129.5,29.2,105.2,42.3,72.1z"/>
-			<path id="p2" class="st11" d="M62.2,94.9c11.7-10.6,12-40.4,46.1-22.8c45.4,23.5,74.3,42.7,86.5,13.7
-				c13.7-7.4,34.7,54.1,14.2,72.3s-64.5-31.5-74.6-15.9c-7.4,11.4-57-0.2-68.9,18.8C51,151.4,37.1,117.7,62.2,94.9z"/>
-		</g>
-		
-			<g id="_x2D_-morph_x5F_test_x2C_0_x2C_paths:p1:p2_x2C_emph:morph:3s::1:path_x5F_chain:p1:p2:color_00000060751181900165832660000006818694674868778377_" class="st5">
-			<polyline id="s1_00000085222869995604161440000004451679823594102920_" class="st12" points="115.9,25.6 77.1,65.4 90.1,114.4 
-				122,137.9 164.4,119.3 212.4,137.9 227,103.4 177.2,83 207.6,55.2 181,29.7 			"/>
-			<polyline id="p1_00000088135161863469243520000005662870546560440750_" class="st13" points="79.9,32.5 96.8,79.7 68.7,137.9 
-				145.3,155 137.4,118.5 187.9,105.7 234.1,83 170,69.7 			"/>
-			<polyline id="p2_00000043425878046193208930000009232710483182666658_" class="st14" points="109,13.1 112.1,70 128.9,84.8 
-				154.2,57.5 151.4,29.7 			"/>
-		</g>
-		<g id="_x2D_-morph_x5F_test_x2C_0_x2C_paths:p1_x2C_emph:morph:3s::1:color" class="st5">
-			<line id="s1_00000168831308742896352030000004998423707698024375_" class="st14" x1="44.2" y1="160.1" x2="135.8" y2="160.1"/>
-			<path id="p1_00000175313201161890904030000012515345618979877043_" class="st14" d="M55.7,125.7c8.2-35,18.4-59.5,46.5-72.5
-				s38,25.5,65.6,11.7s7.9-41.9,7.9-41.9"/>
-		</g>
-	</g>
-</g>
-</svg>
+<!--
+  - Copyright © 2023  Information Aesthetics. All rights reserved.
+  - This work is licensed under the GPL2, V2 license.
+  -->
+
+<!--
+  - Copyright © 2023  Information Aesthetics. All rights reserved.
+  - This work is licensed under the GPL2, V2 license.
+  -->
+

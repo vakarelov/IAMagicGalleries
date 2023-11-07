@@ -1,4 +1,13 @@
 <?php
+/*
+ * Copyright © 2023  Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
+ */
+
+/*
+ * Copyright © 2023  Information Aesthetics. All rights reserved.
+ * This work is licensed under the GPL2, V2 license.
+ */
 
 $target = (isset($_GET["target"])) ? $_GET['target'] : null;
 
@@ -11,7 +20,6 @@ $target = str_replace("..", "", $target);
 
 $filename = realpath(__DIR__ . "/" . $target);
 if (file_exists($filename)) {
-    $file = 'path/to/file';
     $mime_type = mime_content_type($filename);
     header('Content-Type: ' . $mime_type);
     readfile($filename);

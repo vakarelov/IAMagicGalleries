@@ -1,2 +1,3 @@
 # Project exclude paths
 /no_wp/
+/wp-content/plugins/IAMagicGalleries/node_modules/
