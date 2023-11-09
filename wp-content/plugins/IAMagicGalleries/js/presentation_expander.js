@@ -9,7 +9,7 @@ if (IA_Designer) {
 
     document.body.style.overflowX = "hidden";
 
-    function widthFunctionPercent(p, parent) {
+    const widthFunctionPercent = (p, parent) => {
         p = p || 1;
         // let width = jQuery(window).width();
         let width = (parent) ? window.getComputedStyle(parent).width : document.body.clientWidth;
@@ -18,7 +18,7 @@ if (IA_Designer) {
         }
         // console.log(width);
         return width * p;
-    }
+    };
 
     let resize_time_default = 1000;
 
@@ -27,7 +27,7 @@ if (IA_Designer) {
     const edit_header = jQuery('.edit-post-header');
 
 
-    function admin_bar_height() {
+    const admin_bar_height = () => {
         let admin_bar_h = 0;
         if (adminbar.length) {
             admin_bar_h = adminbar.height();
@@ -46,16 +46,14 @@ if (IA_Designer) {
         return admin_bar_h;
     };
 
-    function valFunction(w) {
-        return w;
-    }
+    const valFunction = w => w;
 
-    function heightFunctionPersent(p) {
+    const heightFunctionPersent = p => {
         p = p || 1;
         return (window.innerHeight - admin_bar_height()) * p;
-    }
+    };
 
-    function make_full_width(element, remove) {
+    const make_full_width = (element, remove) => {
         if (remove) {
             // element.classList.remove("alignfull")
             element.classList.remove('IA_Designer_Full_Width');
@@ -76,9 +74,9 @@ if (IA_Designer) {
             // element.style.width = "100vw"
             // element.style.maxWidth = "100vw"
         }
-    }
+    };
 
-    function set_adaptive(guis, gui) {
+    const set_adaptive = (guis, gui) => {
         for (let gui_id in guis) if (guis.hasOwnProperty(gui_id)) {
             const parent = guis[gui_id].div_container.node.parentNode;
             // let in_gutenburg = parent.classList.contains('wp-block');
@@ -125,11 +123,11 @@ if (IA_Designer) {
                 guis[gui_id].eve('panel.resize', undefined, undefined, 0);
             }
         }
-    }
+    };
 
     let current_active;
 
-    function activate(id) {
+    var activate = function (id) {
         if (current_active === id) return;
         console.log('In Activation ............', admin_bar_height());
         const gui = this;
@@ -143,7 +141,7 @@ if (IA_Designer) {
         }
 
         current_active = id;
-    }
+    };
 
     IA_Designer.eve.on(['ia', 'setActiveInterface'], activate);
 

@@ -16,12 +16,10 @@ class ImageHandler
      */
     public $images = [];
     private $videos = [];
-    private $slug;
+    private $slug = IAMG_SLUG;
 
     function __construct($video = false)
     {
-        $basename = plugin_basename(__FILE__);
-        list($this->slug, $_) = explode('/', $basename);
         if ($video) {
             $this->videos = $this->get_videos();
 

@@ -4,7 +4,37 @@ window.presentation_full_loaded = true;
 
 if (IA_Designer) {
     console.log("Presentation Full loaded!!");
-    function make_full() {
+
+    const addFullStyle = () => {
+        let css = 'body, html {\n' +
+            '            height: 100%;\n' +
+            '            overflow: hidden; \n' +
+            '            margin: 0;\n' +
+            '        }\n' +
+            '.IA_Presenter_Container {\n' +
+            '        position: fixed;\n' +
+            '        width: 100%;\n' +
+            '        height: 100%;\n' +
+            '        top: 50%;\n' +
+            '        left: 50%;\n' +
+            '        transform: translate(-50%, -50%);\n' +
+            '    }\n ' +
+            '#wpadminbar{' +
+            '   opacity: .3;\n' +
+            '}';
+        const head = document.head || document.getElementsByTagName('head')[0],
+            style = document.createElement('style');
+
+        head.appendChild(style);
+
+        style.appendChild(document.createTextNode(css));
+    };;
+
+    const hideAdminBar = () => {
+
+    };
+
+    const make_full = function (){
         const gui = this;
 
         console.log("in make_full");
@@ -34,7 +64,7 @@ if (IA_Designer) {
 
             gui.eve('panel.resize');
         }
-    }
+    };
 
     let gui = IA_Designer.getGui();
     if (gui){
@@ -43,34 +73,4 @@ if (IA_Designer) {
         IA_Designer.eve.on(['ia', 'gui', 'created'], make_full)
     }
 
-
-
-    function addFullStyle() {
-        let css = 'body, html {\n' +
-            '            height: 100%;\n' +
-            '            overflow: hidden; \n' +
-            '            margin: 0;\n' +
-            '        }\n' +
-            '.IA_Presenter_Container {\n' +
-            '        position: fixed;\n' +
-            '        width: 100%;\n' +
-            '        height: 100%;\n' +
-            '        top: 50%;\n' +
-            '        left: 50%;\n' +
-            '        transform: translate(-50%, -50%);\n' +
-            '    }\n ' +
-            '#wpadminbar{' +
-            '   opacity: .3;\n' +
-            '}';
-        const head = document.head || document.getElementsByTagName('head')[0],
-            style = document.createElement('style');
-
-        head.appendChild(style);
-
-        style.appendChild(document.createTextNode(css));
-    }
-
-    function hideAdminBar() {
-
-    }
 }

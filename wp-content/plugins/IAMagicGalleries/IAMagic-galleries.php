@@ -6,12 +6,16 @@
 
 /*
 Plugin Name: IA Magic Galleries
-Plugin URI: http://URI_Of_Page_Describing_Plugin_and_Updates
-Description: A brief description of the Plugin.
-Version: 1.0
+Plugin URI: https://iaesth.ca/wp/
+Description: The plugin facilitates the integration of the IA Magic Galleries system into the WordPress environment.
+Version: 1.1.0
 Author: Information Aesthetics
 Author URI: https://iaesth.ca
 License: GPL2, V2
+License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+Requires at least: 5.8
+Requires PHP:      7.3
+Text Domain:       iamg
 */
 
 if (!defined('WPINC')) {
@@ -43,31 +47,30 @@ define("IAMG_PREFIX", 'iamg_');
 
 define("IAMG_JS_URL", IAMG_URL . 'js/');
 
-//define("IAMG_API_URL", "https://iaesth.ca/apps/IAMG/com");
-
-define("IAMG_API_URL", "http://sandbox.pri/IADesigner/php-vector-graphic/src/IA_Designer/com/");
-
-define("IAMG_API_URL_BACKUP", "http://sandbox.pri/IADesigner/php-vector-graphic/src/IA_Designer/com/");
-
-//define("IAMG_TEMP_MEM_TIME", 30 * 60);
+if (file_exists(IAMG_PATH . '/_test/defs.php')) {
+    require_once IAMG_PATH . '/_test/defs.php';
+} else {
+    define("IAMG_API_URL", "https://iaesth.ca/apps/IAMG/com");
+    define("IAMG_API_URL_BACKUP", "https://infoaesthetics.ca/apps/IAMG/com");
+}
 
 
 //for debugging remove
-add_filter('allowed_http_origins', 'add_allowed_origins');
-function add_allowed_origins($origins)
-{
-    $origins[] = 'http://sandbox.pri';
-    return $origins;
-}
+//add_filter('allowed_http_origins', 'add_allowed_origins');
+//function add_allowed_origins($origins)
+//{
+//    $origins[] = 'http://sandbox.pri';
+//    return $origins;
+//}
 
-//Define posttype and admin menues
+//Define posttype and admin menus
 require_once IAMG_INCLUDES_PATH . 'IAMG_posttype.php';
-if (is_admin()){
+if (is_admin()) {
     require_once IAMG_INCLUDES_PATH . 'IAMG_submenue.php';
 }
 
 
-require_once IAMG_INCLUDES_PATH . 'IAMG_activation.php';
+require_once IAMG_INCLUDES_PATH . 'IAMG_Activation.php';
 
 //Adds crone jobs to check if app library must be updated
 require_once IAMG_INCLUDES_PATH . 'IAMG_LibHandler.php';
@@ -80,11 +83,15 @@ if (is_admin()) {
 //    require_once IAMG_INCLUDES_PATH . 'Gallery_Gen_Link.php';
     require_once IAMG_INCLUDES_PATH . 'IAMG_admin_notices.php';
 }
+
 require_once IAMG_INCLUDES_PATH . 'IAMG_App_Loader.php';
 
 
 //For testing
-//require_once IAMG_PATH . '/_test/test.php';
+if (file_exists(IAMG_PATH . '/_test/test.php')) {
+    require_once IAMG_PATH . '/_test/test.php';
+}
+
 
 
 

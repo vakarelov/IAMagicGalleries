@@ -36,12 +36,6 @@ class Client
     const ERROR_CONNECT_TIMEOUT = 4;
     const ERROR_CONNECT_ERROR = 5;
 
-    /**
-     * The client version
-     *
-     * @var string
-     */
-    public $version = '1.0.0';
 
     /**
      * Name of the plugin
@@ -467,13 +461,16 @@ class Client
     {
         $key = $this->get_key();
 
-//        echo $key . "\n";
+//        echo $key . "\n"
+
         if (!$key) {
             //Ask for a key from the server
             try {
                 $results = $this->send_request(["wp" => admin_url('admin-ajax.php')], $this->routes["register"], true,
                     0);
+                update_option(IAMG_SLUG . "_called_reg_client", $results);
             } catch (\Exception $e) {
+                update_option(IAMG_SLUG . "_called_reg_client_exception", $e->getMessage());
                 return $e->getMessage();
             }
 
@@ -495,8 +492,6 @@ class Client
                     return "Registered Successfully";
                 }
             }
-
-            wp_send_json($results);
 
             return "Didn't get a key";
         } else {
@@ -595,7 +590,7 @@ class Client
             'httpversion' => '1.0',
             'blocking' => $blocking,
             'headers' => $headers,
-            'body' => array('data' => $data, 'client' => $this->version, 'encrypted' => $encrypted),
+            'body' => array('data' => $data, 'client' => IAMG_VERSION, 'encrypted' => $encrypted),
             'cookies' => array()
         );
 
@@ -897,7 +892,7 @@ class Client
         return false;
     }
 
-    private function process_other_resources(mixed $other_resources)
+    private function process_other_resources($other_resources)
     {
         foreach ($other_resources as $name => $resource) {
             if (is_array($resource) && isset($resource['version'])) {
@@ -912,7 +907,7 @@ class Client
         }
     }
 
-    private function save_resource($name, mixed $resource, mixed $version = null)
+    private function save_resource($name, $resource, $version = null)
     {
         $option = IAMG_SLUG . self::RESOURCE . $name;
         update_option($option, $resource, false);

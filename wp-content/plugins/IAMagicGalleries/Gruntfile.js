@@ -36,7 +36,7 @@ module.exports = function (grunt) {
                         unused: true,
                         drop_console: true, //must be true
                     },
-                    sourceMap: true,
+                    sourceMap: false,
                 },
 
                 // dist: {
@@ -64,41 +64,74 @@ module.exports = function (grunt) {
             },
         },
 
+        clean: {
+            options: {
+                force: true
+            },
+            dest: ['C:/Users/okv/Desktop/IAMagicGalleries']
+        },
+
         copy: {
             main: {
                 expand: true,
-                src: ['**/*', '!**/*.psd', '!resources/**', '!node_modules/**', '!Gruntfile.js', '!package.json', '!package-lock.json', '!composer.json', '!composer.lock', '!log.txt','!notes/**'],
-                dest: 'C:/Users/okv/Desktop/IAMG/',
+                src: ['**/*', '!**/*.psd', '!resources/**', '!node_modules/**', '!Gruntfile.js', '!package.json', '!package-lock.json', '!composer.json', '!composer.lock', '!log.txt', '!notes/**', '!**/*.js.map', '!**/*.back'],
+                dest: 'C:/Users/okv/Desktop/IAMagicGalleries/',
                 filter: function (filepath) {
                     // Use a filter function to exclude files and directories starting with a dot or underscore
                     let test = !/^_.*|.*\\_.*/.test(filepath) && !/^\..*|.*\\\..*/.test(filepath)
-                    && !filepath.startsWith('resources\\iamg');
-                    console.log(filepath, test);
+                        && !filepath.startsWith('resources\\iamg');
+                    // console.log(filepath, test);
                     return test;
                 },
             },
             resources: {
                 expand: false,
-                src: ['resources/index.php', 'resources/process.php', 'resources/loading.gif',],
-                dest: 'C:/Users/okv/Desktop/IAMG/',
+                src: ['resources/index.php',
+                    'resources/process.php',
+                    'resources/loading.gif',
+                    'resources/iamg_editor_included_images_controller.json',
+                    'resources/iamg_editor_libraries.json',
+                    'resources/buttons_presenter.json',
+                    'resources/controller_presenter_simple.json',],
+                dest: 'C:/Users/okv/Desktop/IAMagicGalleries/',
             },
         },
+        compress: {
+            zip: {
+                options: {
+                    archive: 'C:/Users/okv/Desktop/IAMagicGalleries.zip',
+                },
+                files: [
+                    {
+                        cwd: 'C:/Users/okv/Desktop/IAMagicGalleries',
+                        src: ['**'],
+                        dest: 'IAMagicGalleries/',
+                    }
+                ]
+            }
+        }
+
 
     });
 
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify-es');
+    // grunt.loadNpmTasks('grunt-contrib-uglify');
     // grunt.loadNpmTasks('grunt-babel');
     // grunt.loadNpmTasks('grunt-external-daemon');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-htmlmin');
     grunt.loadNpmTasks('grunt-json-minify');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-compress');
+    grunt.loadNpmTasks('grunt-contrib-clean');
 
-    grunt.registerTask('default', [
-        // 'concat',
-        'uglify', 'cssmin']);
 
-    grunt.registerTask('produce', ['copy']);
+    grunt.registerTask('default', ['uglify', 'cssmin']);
+
+    grunt.registerTask('produce', ['clean', 'copy', 'compress']);
+
+    grunt.registerTask('all', ['uglify', 'cssmin', 'clean', 'copy', 'compress']);
+
 };

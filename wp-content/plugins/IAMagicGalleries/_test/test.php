@@ -39,12 +39,11 @@ function run_test()
 
 
 //    $client->save_key("");
-
+//
 //    $response = $client->register_client();
 
     $response =  $client->update_app_script();
 
-//    wp_send_json($response);
 //
 //    wp_send_json(admin_url( 'admin-ajax.php' ));
 

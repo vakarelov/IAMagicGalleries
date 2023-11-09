@@ -13,6 +13,8 @@ if (!defined('WPINC')) {
 
 //require_once IAMG_INCLUDES_PATH . "Gallery_Gen_Link.php";
 
+require_once __DIR__ . '/../src/autoload.php';
+
 class IAMGComDispacher
 {
 
@@ -20,6 +22,9 @@ class IAMGComDispacher
     private $slug = IAMG_SLUG;
     private $jsonData;
 
+    /**
+     * @var array[] $settings_defs global settings for the plugin
+     */
     static private $settings_defs = [
         'preserve_posts' => [
             'option' => 'preserve_posts_on_uninstall', //option name
@@ -110,6 +115,10 @@ class IAMGComDispacher
         return null;
     }
 
+    /**
+     * Serve the IA Presenter app to client
+     * @return void
+     */
     public function load_app()
     {
         header('Content-Type: application/x-javascript; charset=utf-8');
@@ -122,6 +131,11 @@ class IAMGComDispacher
         wp_die();
     }
 
+    /**
+     * Serve a presentation directly
+     * Serve the IA Presenter app to client
+     * @return void
+     */
     function presentation()
     {
         $id = $this->_get_param("id");
@@ -143,6 +157,10 @@ class IAMGComDispacher
         wp_die();
     }
 
+    /**
+     * Serv the Admin presentation for building galleries directly
+     * @return void
+     */
     function builder_presentation()
     {
         header('Content-type: image/svg+xml');
@@ -154,9 +172,13 @@ class IAMGComDispacher
 
     function reset()
     {
-        return ["hello" => "hi"];
+        //todo
     }
 
+    /**
+     * Save a gallery to permanent storage from temporary storage, making it a post
+     * @return void
+     */
     function save()
     {
         //secure save
@@ -171,25 +193,25 @@ class IAMGComDispacher
 
         $user_id = get_current_user_id();
 
-        if (false && !$pres_id) {
-            $contents = "base64:" . base64_encode(file_get_contents(IAMG_PATH . "resources/svg/morph.svg"));
-            $content = '<div id="' . $title . '" class="IA_Presenter_Container IA_Designer_Container" ' .
-                'data-block-id="' . $block_id . '" presentation="' . $contents . '"></div>';
-
-            $new_post = array(
-                'post_title' => ($title) ?: "Magic Gallery",
-                'post_content' => $content,
-                'post_status' => 'draft',
-                'post_author' => $user_id,
-                'post_type' => IAMG_POST_TYPE,
-//				'post_category' => array($categoryID)
-            );
-
-            $new_id = wp_insert_post($new_post);
-            if ($new_id || !is_wp_error($new_id)) {
-                $pres_id = (string)$new_id;
-            }
-        }
+//        if (false && !$pres_id) {
+//            $contents = "base64:" . base64_encode(file_get_contents(IAMG_PATH . "resources/svg/morph.svg"));
+//            $content = '<div id="' . $title . '" class="IA_Presenter_Container IA_Designer_Container" ' .
+//                'data-block-id="' . $block_id . '" presentation="' . $contents . '"></div>';
+//
+//            $new_post = array(
+//                'post_title' => ($title) ?: "Magic Gallery",
+//                'post_content' => $content,
+//                'post_status' => 'draft',
+//                'post_author' => $user_id,
+//                'post_type' => IAMG_POST_TYPE,
+////				'post_category' => array($categoryID)
+//            );
+//
+//            $new_id = wp_insert_post($new_post);
+//            if ($new_id || !is_wp_error($new_id)) {
+//                $pres_id = (string)$new_id;
+//            }
+//        }
 
 
         if (!$pres_id) {
@@ -197,7 +219,7 @@ class IAMGComDispacher
             $pres_id = "iamg_gallery_" . $gallery_number + 1;
         }
 
-        if ($locator) {
+        if ($locator) { // we should always have a locator
             $settings = (new Client())->set_gallery_to_post($locator, $pres_id, $title, $block_id, $page_id, $post_id,
                 $is_gallery_post);
             if ($settings === 'expired') {
@@ -214,15 +236,21 @@ class IAMGComDispacher
             }
         }
 
-        //just for testing
-        wp_send_json(['pres_id' => $pres_id, 'user_id' => $user_id]);
+        //just for testing, we should never get here
+//        wp_send_json(['pres_id' => $pres_id, 'user_id' => $user_id]);
     }
 
     function remove()
     {
-
+        //for now the user will remove galleries from the admin panel
+        // if we want to respond to removal of blocks containing galleries,
+        //we will handle the removal here
     }
 
+    /**
+     * Send image to the library after request
+     * @return void
+     */
     function images()
     {
         $start = (int)$this->_get_param('start');
@@ -240,13 +268,19 @@ class IAMGComDispacher
 
         $imageHandler = new ImageHandler();
 
-        wp_send_json($imageHandler->get_for_library($start, $num_images, false, $album));
+//        wp_send_json($imageHandler->get_for_library($start, $num_images, false, $album));
+        return $imageHandler->get_for_library($start, $num_images, false, $album);
     }
 
+    /**
+     * Send video to the library after request
+     * @return void
+     */
     function videos()
     {
         $start = (int)$this->_get_param('start');
         $num_images = $this->_get_param('number_results');
+        //todo: add albums
 
         if (!is_numeric($num_images)) {
             $num_images = null;
@@ -258,10 +292,14 @@ class IAMGComDispacher
 
         $imageHandler = new ImageHandler(true);
 
-        wp_send_json($imageHandler->get_for_library($start, $num_images, true));
+//        wp_send_json($imageHandler->get_for_library($start, $num_images, true));
+        return $imageHandler->get_for_library($start, $num_images, true);
     }
 
-    //make gallery
+    /**
+     * Gather images for gallery and send the request to generate it to the IA SAS
+     * @return array
+     */
     function make_gallery()
     {
 
@@ -338,6 +376,11 @@ class IAMGComDispacher
         return $source;
     }
 
+    /**
+     * Change global settings for the plugin
+     * todo: primarily to future use
+     * @return array
+     */
     function settings()
     {
         $updated = [];

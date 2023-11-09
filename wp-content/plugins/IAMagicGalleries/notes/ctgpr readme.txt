@@ -1,6 +1,6 @@
 === IA Magic Galleries by Information Aesthetics ===
 
-Tags: gallery, image gallery, photo gallery, responsive gallery, WordPress gallery plugin, albums, media gallery, video gallery, lightbox, dynamic galleries, interactive galleries, slideshows, carousels
+Tags: gallery, image gallery, photo gallery, responsive gallery, Wordpress gallery plugin, albums, media gallery, video gallery, lightbox, dynamic galleries, interactive galleries, slideshows, carousels
 Requires at least: WordPress 5.2
 Tested up to: WordPress 6.3
 
@@ -12,7 +12,7 @@ Transform your WordPress site into an engaging visual showcase with IA Magic Gal
 == Description ==
 IA Magic Galleries is the ultimate gallery solution for WordPress users looking for a powerful way to exhibit their media content. Our feature-rich plugin takes the hassle out of creating beautiful, responsive galleries that adapt to various screen sizes and devices. Craft stunning photo and video galleries that stand out and keep your audience returning for more, using IA Magic Galleries' diverse selection of styling options and interactive elements.
 
-This plugin allows the integration of the powerful IA Presenter environment into WordPress and our state-of-the-art vector-graphics generation engine run by Information Aesthetics's SAS services helps build your galleries it the media hosted on you WordPress site.
+This plugin allows the interation of the powerful IA Presenter enviroment into WordPress and our satate-of-the-art vector-graphics generation engine run by Information Aesthetics's SAS services helps build your galleries it the media hosted on you WordPress site.
 
 = WordPress Gallery Plugin Highlights =
 - User-friendly interface: Easily create and manage your galleries with intuitive controls and settings.
@@ -26,7 +26,7 @@ This plugin allows the integration of the powerful IA Presenter environment into
 - Revolutionary control interface: Use the IA Presenter, the engine that runs the galleries, to control define and control your galleries.
 - Gutenberg block: Easily add your galleries to any page or post with the IA Magic Galleries block.
 
-[Explore IA Magic Galleries and see it in action on our WP Demo site](https://iaesth.ca/wp/)
+[Explore IA Magic Galleries and see it in action on our Homepage](https://iaesth.ca/wp/)
 
 = WordPress Gallery Plugin Features =
 Unlock the full potential of your media content with these powerful features:
@@ -36,15 +36,7 @@ Unlock the full potential of your media content with these powerful features:
 - Extensive compatibility: Works seamlessly with a wide range of media file types and sources.
 - Regular updates: Enjoy new features and improvements the without the need to update the plugin.
 
-[View More Demos and Feature Highlights]
-
-**IA Magic Galleries**<br>
-*<a href="https://iaesth.ca/wp/slide-gallery-sample/" target="_blank">Slide Gallery</a><br>
-*<a href="https://iaesth.ca/wp/grid-smaple-gallery/" target="_blank">Grid Gallery</a><br>
-*<a href="https://iaesth.ca/wp/morph-gallery-sample/" target="_blank">Morph Gallery</a><br>
-*<a href="https://iaesth.ca/wp/fan-gallery-sample/" target="_blank">Fan Gallery</a><br>
-*<a href="https://iaesth.ca/wp/rolling-gallery-sample/" target="_blank">Rolling Gallery</a><br>
-
+[View More Demos and Feature Highlights]()
 
 == Changelog ==
 
@@ -61,6 +53,6 @@ Alternatively, a gallery can be created as standalone post inside the WordPress 
 
 
 == Support ==
-Stuck or need help? Our dedicated support team is here to assist you. Check out our [Support Page]() for answers to common questions or to submit a support request.
+Stuck or need help? Our dedicated support team is here to assist you. Check out our [Support Forum]() for answers to common questions or to submit a support request.
 
 Thank you for choosing IA Magic Galleries by Information Aesthetics. Unleash the magic of your media content and provide your visitors with a mesmerizing visual experience today!

@@ -4,7 +4,6 @@
  */
 
 
-
 window.addEventListener("load", function(){
   if (window.IA_Presenter_loader){
     console.log("In Boot Script")

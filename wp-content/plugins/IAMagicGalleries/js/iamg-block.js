@@ -4,9 +4,8 @@
  */
 
 
-
 (function () {
-    const debug = true;
+    const debug = false;
     const el = wp.element.createElement;
     const iap_settings = iap_loader_settings;
     debug && console.log('In iamg-block', iap_loader_settings);
@@ -21,21 +20,20 @@
         src: 'dashicons-format-image',
 
     };
-    let to_save = false;
     let post_id;
-
-    let loaded_Presenter = false;
 
     let number_guis = 0;
 
     let glob_props = {};
 
-    window.glob_props = glob_props;
+    // window.glob_props = glob_props;
+
+    let category = (iap_settings.wp_version && parseFloat(iap_settings.wp_version) < 5.8) ? 'widgets' : 'media';
 
     wp.blocks.registerBlockType('ia-mg/gallery', {
         title: __('IA Magic Gallery'),
         icon: 'format-gallery',//'universal-access-alt',
-        category: 'media',
+        category: category,
         supports: {
             align: true
         },
@@ -51,7 +49,7 @@
             background_color: {type: 'string', default: "#fff"},
             background_opacity: {type: 'number', default: 0}
         },
-        usesContext: [ 'postId' ],
+        usesContext: ['postId'],
         edit: edit,
         save: save,
     });
@@ -66,7 +64,7 @@
             props
         );
 
-        post_id = props.context.postId;
+        post_id = (props.context) ? props.context.postId : null;
 
         function updatePresentation(url) {
             props.setAttributes({presentation: url});
@@ -80,22 +78,6 @@
             if (!props.attributes.block_id) props.setAttributes({block_id: id});
         }
 
-        function save_pres() {
-            debug && console.log('In Save', props.clientId,
-                (props.isSelected) ? 'Selected' : 'Not Selected');
-            let data1 = {};
-            Snap_ia.ajax(wp.ajax.settings.url, {
-                action: 'iamgtest',
-                post_id: wp.media.view.settings.post.id,
-                pres_id: props.attributes.pres_id,
-            }, function (data) {
-                debug && console.log(JSON.parse(data.response).data);
-            });
-            // wp.ajax.post('iamgtest', {
-            //   data: data1,
-            //   success: ,
-            // });
-        }
 
         updateBlockId(props.clientId);
         if (!props.attributes.pres_id && props.attributes.block_id) {
@@ -219,7 +201,7 @@
 
     function load_iamg_block_events(attributes) {
         if (events_loaded || !window.eve_ia) return;
-        let prev_properties = attributes.properties;
+        // let prev_properties = attributes.properties;
         events_loaded = true;
 
         //Events here
@@ -238,6 +220,7 @@
                 block_id: block_id,
                 pres_id: presId,
                 post_id: post_id,
+                locator: locator,
             };
 
             let process_responce = function (response) {
@@ -276,11 +259,12 @@
                 block_id: block_id,
                 pres_id: presId,
                 post_id: post_id,
+                locator: locator,
             };
 
-            if (locator) {
-
-            }
+            // if (locator) {
+            //     //todo
+            // }
             gui.comManager.wpCommand(command,
                 function (response) {
                     debug && console.log('Success', response);
@@ -293,7 +277,7 @@
 
         eve_ia.on(['ia', 'gui', 'created'], function (id) {
             const gui = this;
-            debug && console.log('Creating gui..............', id);
+            // debug && console.log('Creating gui..............', id);
 
             if (window.MutationObserver) {
                 let observer = new MutationObserver(function (mutationList) {

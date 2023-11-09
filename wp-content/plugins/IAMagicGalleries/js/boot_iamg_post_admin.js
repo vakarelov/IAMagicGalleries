@@ -152,8 +152,6 @@
                 {after_callback: after_load}
             );
         }
-
-
     })
 
 

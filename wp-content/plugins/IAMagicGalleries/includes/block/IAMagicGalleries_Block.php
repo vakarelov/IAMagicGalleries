@@ -13,7 +13,8 @@ if (!class_exists('IAMagicGalleries/AppSettings')) {
 if (!class_exists('IAMagicGalleries_Block')) {
     class IAMagicGalleries_Block
     {
-        const USE_MINIFIED = false;
+        const USE_MINIFIED = WP_DEBUG ? false : true;
+//        const USE_MINIFIED =  false;
 
         public function __construct()
         {
@@ -42,6 +43,9 @@ if (!class_exists('IAMagicGalleries_Block')) {
                 'linked',
                 true
             );
+
+            $version = get_bloginfo( 'version' );
+            $app_settings['wp_version'] = $version;
 
             wp_localize_script('iamg-block-script', 'iap_loader_settings',
                 $app_settings

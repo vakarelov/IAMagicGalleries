@@ -227,7 +227,7 @@ var IA_Presenter_loader = (function (root) {
 
                 gui.div_container.setStyle({background: background_color});
 
-                window.gui = gui; //for debugging
+                // window.gui = gui; //for debugging
 
                 if (initial_graphics) {
                     if (typeof initial_graphics === 'string') {

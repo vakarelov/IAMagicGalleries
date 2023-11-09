@@ -27,6 +27,7 @@ $get_resource = [
 ];
 
 if (isset($get_resource[$target])) {
+    require_once __DIR__ . '/../src/autoload.php';
     require_once __DIR__ . '/../../../../wp-load.php';
     $inst = $get_resource[$target];
 

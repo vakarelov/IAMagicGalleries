@@ -22,14 +22,15 @@ class IAMG_Activation
             register_activation_hook(IAMG_MAIN_FILE, [$this, 'iamg_plugin_activate']);
             //deactivation hook also exists in IAMG_LibHandler.php
 
-            register_uninstall_hook(IAMG_MAIN_FILE, [$this, 'uninstall']);
+            register_uninstall_hook(IAMG_MAIN_FILE, ['IAMG_Activation', 'uninstall']);
+
             add_action('admin_init', [$this, 'load_plugin']);
         }
 
         if (true || !$this->client->is_local_server()) {
             add_action('wp_ajax_nopriv_iamg_verify', [$this, 'verify_wp_server']);
 
-            add_action('wp_ajax_iamg_verify', [$this, 'verify_wp_server']); // todo: remove in production
+//            add_action('wp_ajax_iamg_verify', [$this, 'verify_wp_server']); // todo: remove in production
         }
     }
 
@@ -37,14 +38,14 @@ class IAMG_Activation
     {
 //        return;
         add_option('_iamg_activating_plugin', true);
-//        add_option('_iamg_activated_plugin', true);
+        add_option('_iamg_activated_plugin', true);
         return;
 
         /* activation code here */
-        $result = $this->first_register();
-        if (!$result["success"]) {
-            add_option('_iamg_activation_plugin_error', $result);
-        }
+//        $result = $this->first_register();
+//        if (!$result["success"]) {
+//            add_option('_iamg_activation_plugin_error', $result);
+//        }
 
     }
 
@@ -105,21 +106,23 @@ class IAMG_Activation
 //                AdminNotice::display_notice("A notice here using display notice3");
                 /* do stuff once right after activation */
                 // example: add_action( 'init', 'my_init_function' );
-//                $result = $this->first_register();
-//                if (!$result["success"]) {
+                $result = $this->first_register();
+                if (!$result["success"]) {
 //                    AdminNotice::display_notice("A notice here using display notice5");
-//                    $this->end_activation("Ending");
-//                }
+                    $this->end_activation("Ending");
+                }
             }
 
             if ($first_after_activation) {
 //                AdminNotice::display_notice("A notice here using display notice4");
                 delete_option('_iamg_activated_plugin');
-                $result = $this->first_register();
-                if (!$result["success"]) {
-                    $message = "The plugin could not register with the Information Aesthetics servers. Please contact the support@iaesth.ca for assistance.";
-                    $this->end_activation($message);
-                }
+
+//                $result = $this->first_register();
+//                add_option('_iamg_activation_plugin_start_fist_activation', $result);
+//                if (!$result["success"]) {
+//                    $message = "The plugin could not register with the Information Aesthetics servers. Please contact the support@iaesth.ca for assistance.";
+//                    $this->end_activation($message);
+//                }
             }
         }
     }
@@ -237,9 +240,9 @@ class IAMG_Activation
         return false;
     }
 
-    public function uninstall()
+    public static function uninstall()
     {
-        $this->client->unregister();
+        (new Client())->unregister();
 
         $save_posts = get_option(IAMGComDispacher::_get_setting_option_name('preserve_posts'), false);
 
