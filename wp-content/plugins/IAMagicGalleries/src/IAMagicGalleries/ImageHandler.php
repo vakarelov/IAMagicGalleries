@@ -33,7 +33,7 @@ class ImageHandler
     private function process_date($date, $format = "Y-m-d H:i:s")
     {
         if (is_numeric($date) && !is_string($date)) {
-            $date = date($format, floor($date));
+            $date = gmdate($format, floor($date));
             return $date;
         }
         $timestamp = strtotime($date);
@@ -41,7 +41,7 @@ class ImageHandler
             return null;
         }
 
-        return date($format, $timestamp);
+        return gmdate($format, $timestamp);
     }
 
     public function get_images($date = null, $end_date = null)

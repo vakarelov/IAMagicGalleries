@@ -66,6 +66,8 @@
 
         post_id = (props.context) ? props.context.postId : null;
 
+        // post_id = props.context.postId;
+
         function updatePresentation(url) {
             props.setAttributes({presentation: url});
         }

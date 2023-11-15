@@ -81,7 +81,7 @@ class IAMG_Activation
 
         $this->update_app();
 
-        update_option($client->get_slug() . '_registered', date("Y-m-d H:i:s"));
+        update_option($client->get_slug() . '_registered', gmdate("Y-m-d H:i:s"));
         return ["success" => true];
     }
 
@@ -249,7 +249,13 @@ class IAMG_Activation
 
         //remove all options with the plugin slug given by IAMG_SLUG
         global $wpdb;
-        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '" . IAMG_SLUG . "%'");
+//        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '" . IAMG_SLUG . "%'");
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+                IAMG_SLUG . '%'
+            )
+        );
 
         //remove all metadata for posts if type IAMG_POST_TYPE and then remove all posts
         if (!$save_posts) {

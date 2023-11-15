@@ -4,6 +4,13 @@
  * This work is licensed under the GPL2, V2 license.
  */
 
+/**
+ * The purpose of this file is to provide a way for IA Presenter to obtain dynamically loaded resources.
+ * The resources are expected to be in a fixed directory.
+ * Some resources are available as files but other resources are available as dynamically generated data by WordPress.
+ */
+
+//This part works without WordPress to provide fast access to files in the resources directly.
 $target = (isset($_GET["target"])) ? $_GET['target'] : null;
 
 if (!$target) {
@@ -11,16 +18,21 @@ if (!$target) {
     die();
 }
 
+//prevent backward directory traversal
 $target = str_replace("..", "", $target);
 
 $filename = realpath(__DIR__ . "/" . $target);
 if (file_exists($filename)) {
     $mime_type = mime_content_type($filename);
     header('Content-Type: ' . $mime_type);
-    readfile($filename);
-    exit();
+
+    //Here we must access the file direly because we are not in WordPress environment.
+   readfile($filename);
+   exit();
 };
 
+
+//This part works with WordPress to provide dynamically generated data.
 $get_resource = [
     "image_albums" => ['IAMagicGalleries\ImageHandler', 'get_album_names'],
     "test" => [],
@@ -28,6 +40,8 @@ $get_resource = [
 
 if (isset($get_resource[$target])) {
     require_once __DIR__ . '/../src/autoload.php';
+
+    //load WordPress
     require_once __DIR__ . '/../../../../wp-load.php';
     $inst = $get_resource[$target];
 

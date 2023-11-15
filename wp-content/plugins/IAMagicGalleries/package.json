@@ -22,8 +22,10 @@
     "grunt-contrib-nodeunit": "^3.0.0",
     "grunt-contrib-uglify": "^4.0.1",
     "grunt-contrib-uglify-es": "^3.3.0",
+    "grunt-curl": "^2.5.1",
     "grunt-json-minify": "^1.1.0",
     "grunt-shell": "^3.0.1",
+    "grunt-text-replace": "^0.4.0",
     "node-json-minify": "^1.0.0"
   },
   "dependencies": {

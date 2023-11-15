@@ -8,6 +8,7 @@ if (!defined('WPINC')) {
     exit;
 }
 
+
 class IAMG_posttype
 {
 
@@ -292,7 +293,7 @@ class IAMG_posttype
     ) {
         $i = get_option(IAMG_SLUG . "_gallery_count");
         if ($i === null) {
-            add_option(IAMG_SLUG . "_gallery_count", ($increment) ? 0 : 1, null, false);
+            add_option(IAMG_SLUG . "_gallery_count", ($increment) ? 0 : 1, "", false);
             $i = 0;
         } else {
             if ($increment) {
@@ -373,15 +374,12 @@ class IAMG_posttype
         $id_local
     ) {
         global $wpdb;
-        $sql = "SELECT post_id FROM 
+
+        //        echo $sql;
+
+        $result = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM 
                        {$wpdb->postmeta}
-                WHERE meta_key = 'id_local' AND meta_value =%s ;";
-
-        $sql = $wpdb->prepare($sql, $id_local);
-
-//        echo $sql;
-
-        $result = $wpdb->get_results($sql);
+                WHERE meta_key = 'id_local' AND meta_value = %s ;", $id_local));
 
 //        $query = [
 //            'meta_query' =>
@@ -424,20 +422,21 @@ class IAMG_posttype
                                 WHERE meta_key='id_local' AND meta_value=%s) AS a 
                                ON pm.post_id = a.post_id 
                 WHERE meta_key = 'presentation';";
-        $sql = $wpdb->prepare($sql, $local_id);
 
-//        echo $sql;
-
-        $result = $wpdb->get_results($sql);
+        $result = $wpdb->get_results($wpdb->prepare($sql, $local_id));
 
         if (isset($result[0]) && isset($result[0])) {
             return ($decode) ? base64_decode($result[0]->meta_value)
                 : $result[0]->meta_value;
         } else {
-            //let's try to get it in a slower with the help of wp, in case something changed in the table architecture
             $post = self::get_post($local_id);
             $content = ($post) ? get_post_meta($post->ID, "presentation", true) : null;
             if ($content) {
+                $encripted = get_post_meta($post->ID, "encrypted", true);
+                if ($encripted) {
+                    require_once(IAMG_CLASSES_PATH . "Client.php");
+                    $content = (new Client())->process_secure_presentation($content, $encripted);
+                }
                 return ($decode) ? base64_decode($content) : $content;
             }
         }
@@ -461,7 +460,13 @@ class IAMG_posttype
         if (!$pres_base64) {
             $pres_base64 = get_post_meta(get_the_ID(), "presentation", true);
         }
-
+        if ($pres_base64){
+            $encrypted = get_post_meta(get_the_ID(), "encrypted", true);
+            if ($encrypted) {
+                require_once(IAMG_CLASSES_PATH . "Client.php");
+                $pres_base64 = (new Client())->process_secure_presentation($pres_base64, $encrypted);
+            }
+        }
         if (!$pres_base64) {
             return "";
         }

@@ -15,6 +15,9 @@ module.exports = function (grunt) {
     // JSON.minify = require('node-json-minify');
     // const fs = require('fs');
 
+    const version = '1.1.1'
+
+    const key_url = 'http://sandbox.pri/IADesigner/php-vector-graphic/src/IA_Designer/Com/keys.php?version=' + version;
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -23,6 +26,29 @@ module.exports = function (grunt) {
         //         separator: ';',
         //     },
         // },
+
+        curl: {
+            keys: {
+                src: key_url,
+                dest: '_key.txt'
+            }
+        },
+
+        replace: {
+            dist: {
+                src: ['js/iaPresenter_loader.js'],
+                overwrite: true,
+                replacements: [
+                    {
+                        from: /\/\*\*PK\*\/"[a-zA-Z0-9=+\/]*"\/\*\*PK\*\//,
+                        to: function () {
+                            let text = grunt.file.read('_key.txt');
+                            return '/**PK*/"' + text + '"/**PK*/';
+                        }
+                    }
+                ]
+            }
+        },
 
         uglify: {
             my_target: {
@@ -70,7 +96,6 @@ module.exports = function (grunt) {
             },
             dest: ['C:/Users/okv/Desktop/IAMagicGalleries']
         },
-
         copy: {
             main: {
                 expand: true,
@@ -126,12 +151,14 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-curl');
+    grunt.loadNpmTasks('grunt-text-replace');
 
 
-    grunt.registerTask('default', ['uglify', 'cssmin']);
+    grunt.registerTask('default', ['curl', 'replace', 'uglify', 'cssmin']);
 
     grunt.registerTask('produce', ['clean', 'copy', 'compress']);
 
-    grunt.registerTask('all', ['uglify', 'cssmin', 'clean', 'copy', 'compress']);
+    grunt.registerTask('all', ['curl', 'replace', 'uglify', 'cssmin', 'clean', 'copy', 'compress']);
 
 };

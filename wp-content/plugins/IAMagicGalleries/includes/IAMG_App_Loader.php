@@ -31,7 +31,7 @@ class IAMG_App_Loader
 
     private $client;
 
-    const USE_MINIFIED = !WP_DEBUG; //false;
+    const USE_MINIFIED = false; //!WP_DEBUG; //false;
 
     function __construct()
     {
@@ -73,12 +73,14 @@ class IAMG_App_Loader
         }
         $this->scripts_enqueued = true;
 
+        wp_register_script('lz-string', IAMG_URL . $this->script_selector('js/dist/lz-string'));
+
         wp_register_script("IAPresenter_loader", IAMG_URL . $this->script_selector('js/iaPresenter_loader'));
 
         wp_enqueue_script(
             'IAPresenter_boot',
             IAMG_URL . $this->script_selector('js/boot_iamg'),
-            array('jquery', 'IAPresenter_loader'),
+            array('jquery', 'lz-string','IAPresenter_loader'),
             IAMG_VERSION
         );
 
@@ -126,12 +128,14 @@ class IAMG_App_Loader
     {
         global $post;
 
+        wp_register_script('lz-string', IAMG_URL . $this->script_selector('js/dist/lz-string'));
+
         wp_register_script("IAPresenter_loader", IAMG_URL . $this->script_selector('js/iaPresenter_loader'));
 
         wp_enqueue_script(
             'IAPresenter_boot',
             IAMG_URL . $this->script_selector('js/boot_iamg_post_admin'),
-            array('jquery', 'IAPresenter_loader'),
+            array('jquery', 'lz-string', 'IAPresenter_loader'),
             IAMG_VERSION
         );
 
@@ -156,7 +160,7 @@ class IAMG_App_Loader
             $iamg_settings
         );
 
-       $this->enque_styles();
+        $this->enque_styles();
     }
 
     function enqueue_script_for_caching()
@@ -168,12 +172,14 @@ class IAMG_App_Loader
 
 //        print_r("In Caching Code: <br>");
 
+        wp_register_script('lz-string', IAMG_URL . $this->script_selector('js/dist/lz-string'));
+
         wp_register_script("IAPresenter_loader", IAMG_URL . $this->script_selector('js/iaPresenter_loader'));
 
         wp_enqueue_script(
             'IAPresenter_boot',
             IAMG_URL . $this->script_selector('js/boot_iamg_cache'),
-            array('jquery', 'IAPresenter_loader'),
+            array('jquery', 'lz-string', 'IAPresenter_loader'),
             IAMG_VERSION
         );
 
@@ -384,7 +390,7 @@ class IAMG_App_Loader
                 'iamg-def-styles',
                 IAMG_URL . 'css/ia_presenter_general.css'
             );
-        } else{
+        } else {
             wp_enqueue_style(
                 'iamg-def-styles',
                 IAMG_URL . 'css/ia_general.min.css'

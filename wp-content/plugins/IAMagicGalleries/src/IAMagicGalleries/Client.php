@@ -6,7 +6,20 @@
 
 namespace IAMagicGalleries;
 
-
+/**
+ * Class Client handles the communication with the IA SAS server and manages formatting and storage of the data in the
+ * WordPress option table. All critical data is encrypted and tamper-proved to prevent code insertion.
+ *
+ * Security procedures:
+ * When the plugin registers with the SAS server, it receives a unique public key that is used to encrypt the data sent
+ * to the server and decrypt important data from the server to assure it has not been tampered with. The most important data the plugin
+ * receives from the SAS server is the IA Presenter Javascript application library, which it caches and servers to the client browser.
+ * This library arrives in an encrypted gzip format, which is stored in the database as base64 encoded string.
+ * The library gzip file is further protected after runtime decryption by a SAH1 checksum and length verification.
+ * This makes it impossible to tamper with the library by accessing the database. The IA Presenter application is itself
+ * time-limited, and it must be updated from the SAS server once a week or sooner.
+ *
+ */
 class Client
 {
     const PLAYER_RESOURCES = "_player_resources";
@@ -92,9 +105,9 @@ class Client
 
 
     private $routes = [
-        "script" => "scripts.php",
-        "register" => "register_iamg.php",
-        "gallery" => "gallery.php"
+        "script" => "scripts.php", //route for requesting application resource for IA Presenter
+        "register" => "register_iamg.php", //route for registering the client with the server
+        "gallery" => "gallery.php" //route for requesting the generation of a galleries
     ];
 
     /**
@@ -129,7 +142,7 @@ class Client
         $this->project_version = $plugin_data['Version'];
         $this->type = 'plugin';
 
-        $this->textdomain = IAMG_POST_TYPE;
+        $this->textdomain = IAMG_POST_TYPE; //todo chane to IAMG_SLUG
     }
 
 //    /**
@@ -158,7 +171,7 @@ class Client
 //
 //    }
 
-    public function get_app($editor = false)
+    public function get_app($editor = false, $retry = true)
     {
 //        if (microtime(true) > $this->getAppTime()) {
 //            // emergency system if for some reason a script has expired.
@@ -169,55 +182,84 @@ class Client
             return $this->get_editor_app();
         }
 
-        $blocks = get_option(IAMG_SLUG . self::APP_SCRIPT_BLOCKS);
-
-        if ($num_splits = get_option(IAMG_SLUG . "_app_script_split")) {
-            $data = "";
-            for ($i = 0; $i < $num_splits; ++$i) {
-                $data .= get_option(IAMG_SLUG . "_app_script_" . $i);
-            }
-            return $this->decrypt(gzuncompress(base64_decode($data)), null, $blocks);
-        }
-
         $lib = get_option(IAMG_SLUG . self::APP_SCRIPT);
 
 
-        if (!$lib) {
+        if (!$lib && $retry) {
+            // for some reason the app has not been loaded before from the SAS Server
             $result = $this->update_app_script();
             if ($result) {
-                return $this->get_pre_app() . " " . $this->get_app();
+                return $this->get_app(false, false);
             } else {
-                return 'console.log("IA Presenter Application cannot be loaded!")';
+                return [];
             }
         }
 
-        $gzuncompress = gzuncompress(base64_decode($lib));
+        return array_filter([$this->get_pre_app(), $lib], function ($el) {
+            return !!$el;});
+
+        //old code
+
+        $blocks = get_option(IAMG_SLUG . self::APP_SCRIPT_BLOCKS);
+//        $gzuncompress = gzuncompress(base64_decode($lib));
 //        return $blocks;
 //        return $blocks . PHP_EOL . $this->decrypt($gzuncompress, null, $blocks);
 
-        $preApp = $this->get_pre_app();
-        return $preApp . "; \n" . $this->decrypt(gzuncompress(base64_decode($lib)), null,
-                $blocks) . "; \n" . $this->get_post_app();
+//        return $this->get_pre_app($blocks);
+
+        //the data must be decoded and decrypted from the format provided by the SAS server to be passed to the client.
+        try {
+            return $this->get_pre_app($blocks) . "; \n" . gzuncompress($this->decrypt(base64_decode($lib), null,
+                    $blocks, false, true))
+                . "; \n" . $this->get_post_app();
+        } catch (\Exception $e) {
+            if ($e->getCode() === 100) {
+                update_option(IAMG_SLUG . self::APP_SCRIPT, "", false);
+                $this->update_app_script();
+                return ($retry) ? $this->get_app(false, false) : "";
+            }
+        }
     }
 
-    private function get_pre_app()
+    private function get_pre_app($blocks = PHP_INT_MAX, $respond_security = true)
     {
+        $pre_app = get_option(IAMG_SLUG . self::APP_PRE_SCRIPT);
+        return $pre_app ?: null;
 
-        $pre = 'console.log("IA Magic Galleries Loading .... ' . date("Y-m-d H:i:s") . ' ");';
+        //Old code
+
+        $pre = ';console.log("IA Magic Galleries Loading .... ' . gmdate("Y-m-d H:i:s") . ' ");';
+
         if (get_option(IAMG_SLUG . self::APP_HAS_PRE_SCRIPT)) {
-            return $pre . gzuncompress(base64_decode(get_option(IAMG_SLUG . self::APP_PRE_SCRIPT)));
+            try {
+                return $pre .
+                    gzuncompress($this->decrypt(base64_decode(get_option(IAMG_SLUG . self::APP_PRE_SCRIPT)), null,
+                        $blocks, false, true));
+            } catch (\Exception $e) {
+                if ($e->getCode() === 100) {
+                    update_option(IAMG_SLUG . self::APP_PRE_SCRIPT, "", false);
+                    $this->update_app_script();
+                    return $respond_security ? $this->get_pre_app($blocks, false) : "";
+                }
+            }
         }
         return $pre;
     }
 
     private function get_post_app($editor = false)
     {
+        return '';
+
         if ($editor) {
-            return PHP_EOL . 'console.log("IA Magic Galleries Editor Loaded!!!!!")';
+            return ';console.log("IA Magic Galleries Editor Loaded!!!!!")';
         }
-        return PHP_EOL . 'console.log("IA Magic Galleries Loaded!!!!!")';
+        return ';console.log("IA Magic Galleries Loaded!!!!!")';
     }
 
+    /**
+     * Provide the presentation for the gallery setup for the admin panel.
+     * @return false|string
+     */
     public function get_admin_presentation()
     {
         if (get_option(IAMG_SLUG . self::ADMIN_EDITOR)) {
@@ -226,6 +268,11 @@ class Client
         return "";
     }
 
+    /**
+     * This function gets an update of the apps and administrative presentations.
+     * The app library expires after set period and it must be updated from the SAS server periodically.
+     * @return array|WP_Error|int[]|null[]
+     */
     public function update_app_script()
     {
 
@@ -233,23 +280,23 @@ class Client
         $results = $this->send_request(["command" => "get_script", "versions" => $versions], $this->routes['script'],
             true, true);
 
-
         if (!$results || isset($results['error']) && $results['error']) {
             return $results;
         }
 
         if (isset($results['lib'])) {
-//            $lib = gzuncompress($this->decrypt(base64_decode($results['lib']), null, 5));
-//            wp_send_json($lib);
-//            $lib = base64_encode(gzcompress($lib));
-
             update_option(IAMG_SLUG . self::APP_SCRIPT, $results['lib'], false);
+            //When the script expires
             update_option(IAMG_SLUG . self::APP_SCRIPT_TIME, $results['expire']);
-            update_option(IAMG_SLUG . self::APP_SCRIPT_UPDATED, date("Y-m-d H:i:s"));
-            update_option(IAMG_SLUG . self::APP_SCRIPT_BLOCKS, $results['blocks']);
+            update_option(IAMG_SLUG . self::APP_SCRIPT_UPDATED, gmdate("Y-m-d H:i:s"));
+            //store the number of blocks in the script that come encrypted with a private key. This includes a
+            //md5 check and script to prevent tamparing.
+            if (isset($results['blocks'])) {
+                update_option(IAMG_SLUG . self::APP_SCRIPT_BLOCKS, $results['blocks']);
+            }
 
             if (isset($results['resources'])) {
-                update_option(IAMG_SLUG . self::PLAYER_RESOURCES, $results['resources']);
+                update_option(IAMG_SLUG . self::PLAYER_RESOURCES, $results['resources'], false);
             }
 
             if (isset($results['editor_lib'])) {
@@ -257,7 +304,7 @@ class Client
             }
 
             if (isset($results['editor_resources'])) {
-                update_option(IAMG_SLUG . self::EDITOR_RESOURCES, $results['editor_resources']);
+                update_option(IAMG_SLUG . self::EDITOR_RESOURCES, $results['editor_resources'], false);
             }
         }
 
@@ -314,7 +361,7 @@ class Client
             return $results;
         }
 
-        return ["error" => json_encode($results)];
+        return ["error" => wp_json_encode($results)];
     }
 
     public function set_gallery_to_post($locator, $local_id, $title, $block_id, $page_id, $post_id, $is_gallery_post)
@@ -335,6 +382,16 @@ class Client
         return false;
     }
 
+    public function process_secure_presentation($content, $blocks)
+    {
+        try {
+            $content = $this->decrypt($content, null, $blocks, false, true);
+            return $content;
+        } catch (\Exception $e) {
+            return "";
+        }
+    }
+
     public function encrypt($data, $key = null, $blocks = PHP_INT_MAX): array //make private
     {
         if (gettype($key) === 'integer') {
@@ -345,7 +402,7 @@ class Client
         $key = $this->get_key($key);
 
         if (is_array($data)) {
-            $data = json_encode($data);
+            $data = wp_json_encode($data);
         }
         if ($key) {
 //            wp_send_json("he");
@@ -354,7 +411,7 @@ class Client
         }
 
 //        return "No";
-        return (is_array($data)) ? [json_encode($data), 0] : [$data, 0];
+        return (is_array($data)) ? [wp_json_encode($data), 0] : [$data, 0];
     }
 
     private function encrypt_chinks($source, $key, $blocks = PHP_INT_MAX, $is_public = true)
@@ -384,11 +441,14 @@ class Client
     /**
      * Decrypts data send from the server
      * @param  $data the data.
-     * @param $key if a key is provided, it will be used, otherwise the stored key will be used.
-     * @param $_is_private whether the key is private (for debugging.)
+     * @param null $key if a key is provided, it will be used, otherwise the stored key will be used.
+     * @param int $blocks
+     * @param bool $_is_private whether the key is private (for debugging.)
+     * @param bool $sah1_check whether to check the md5 of the decoded string. It assumes that the first 32 characters
+     * of the decoded string are the md5 hash of the rest.
      * @return string|null the decoded string.
      */
-    private function decrypt($data, $key = null, $blocks = PHP_INT_MAX, $_is_private = false)
+    private function decrypt($data, $key = null, $blocks = PHP_INT_MAX, $_is_private = false, $sah1_check = false)
     {
         if (gettype($key) === 'integer') {
             $blocks = $key;
@@ -400,7 +460,25 @@ class Client
         if ($key) {
             $decoded = $this->decrypt_chunks($data, $key, $blocks);
 
-//            $decoded = json_decode($decoded);
+            if ($sah1_check) {
+                //get the first 40 characters of the decoded string
+                $bites = 40;
+                $sha1 = substr($decoded, 0, $bites);
+                $decoded = substr($decoded, $bites);
+
+                $sha1_check = $sha1 !== md5($decoded);
+                if ($sha1_check) {
+                    $salt = substr($decoded, 0, $bites);
+                    $decoded = substr($decoded, $bites);
+                    $size = explode("_", $salt)[0];
+                    $size = (int)$size;
+                    if ($size !== strlen($decoded)) {
+                        //security violation
+                        throw new \Exception("Security violation", 100);
+                    }
+                }
+            }
+
             return $decoded;
         }
         return null;
@@ -424,7 +502,18 @@ class Client
             } else {
                 $ok = openssl_public_decrypt($input, $out, $key);
             }
+
+            if (!$ok) {
+//                $output .= $out;
+                $output .= $input . "**" . $i . "************************************************************";
+
+                break;
+            }
+
+
             $output .= $out;
+            $out = '';
+//            $output .= '*****' . $i . '*****';
         }
         if ($source) {
             $output .= $source;
@@ -441,6 +530,7 @@ class Client
         if (!$key) {
             return null;
         }
+
         if ($is_private) {
             $key_processed = openssl_pkey_get_private(gzuncompress(base64_decode($key)));
         } else {
@@ -520,7 +610,7 @@ class Client
 
         $results = $this->send_request(['check' => $encrypt], $this->routes["register"], true, false);
 
-//        echo json_encode($results) ."\n";
+//        echo wp_json_encode($results) ."\n";
 
         $local_success = true;
         $server_success = isset($results['success']) && $results['success'];
@@ -634,7 +724,7 @@ class Client
 //        if (!$encrypt) {
 //            print_r( json_decode($post_params['body'])."\n");
 //            print_r($response['body']."\n");
-////            print_r(json_encode($post_params));
+////            print_r(wp_json_encode($post_params));
 //        }
 
         $body["contact_server"] = $backup_server ? "backup" : "main";
@@ -825,35 +915,37 @@ class Client
         return true;
     }
 
-    private function get_editor_app()
+    private function get_editor_app($retry = true)
     {
-        $blocks = get_option(IAMG_SLUG . self::APP_SCRIPT_BLOCKS);
-
-        if ($num_splits = get_option(IAMG_SLUG . "_app_script_split")) {
-            $data = "";
-            for ($i = 0; $i < $num_splits; ++$i) {
-                $data .= get_option(IAMG_SLUG . "_app_script_" . $i);
-            }
-            return $this->decrypt(gzuncompress(base64_decode($data)), null, $blocks);
-        }
-
         $lib = get_option(IAMG_SLUG . self::APP_SCRIPT_EDITOR);
 
-//        wp_send_json($lib);
-
-        if (!$lib) {
+        if (!$lib && $retry) {
             $result = $this->update_app_script();
             if ($result) {
-                return $this->get_pre_app() . " " . $this->get_editor_app();
+                return [$this->get_pre_app(), $this->get_editor_app(false)];
             } else {
-                return 'console.log("IA Presenter Application cannot be loaded!")';
+                return [];
             }
         }
 
-        $preApp = $this->get_pre_app();
-        return $preApp . "; \n" . $this->decrypt(gzuncompress(base64_decode($lib)), null, $blocks)
-            . "; \n" . $this->get_post_app(true);
+        return array_filter([$this->get_pre_app(), $lib], function ($el) {
+            return !!$el;});
 
+//        return $blocks . "  " . $this->decrypt(gzuncompress(base64_decode($lib)), null, $blocks);
+
+
+        $blocks = get_option(IAMG_SLUG . self::APP_SCRIPT_BLOCKS);
+        try {
+            $preApp = $this->get_pre_app($blocks);
+            return $preApp . "; \n" . gzuncompress($this->decrypt(base64_decode($lib), null, $blocks, false, true))
+                . "; \n" . $this->get_post_app(true);
+        } catch (\Exception $e) {
+            if ($e->getCode() === 100) {
+                update_option(IAMG_SLUG . self::APP_SCRIPT_EDITOR, "", false);
+                $this->update_app_script();
+                return ($retry) ? $this->get_editor_app(false) : "";
+            }
+        }
     }
 
     /**
@@ -940,7 +1032,15 @@ class Client
     {
         //guerry options database for all options begining with IAMG_SLUG . self::RESOURCE_VERSION, extarct the names and create an assosiatve array with the names as keys and the versions as values.
         global $wpdb;
-        $options = $wpdb->get_results("SELECT option_name, option_value FROM {$wpdb->prefix}options WHERE option_name LIKE '" . IAMG_SLUG . self::RESOURCE_VERSION . "%'"); //get all options begining with IAMG_SLUG . self::RESOURCE_VERSION
+//        $options = $wpdb->get_results("SELECT option_name, option_value FROM {$wpdb->prefix}options WHERE option_name LIKE '" . IAMG_SLUG . self::RESOURCE_VERSION . "%'"); //get all options begining with IAMG_SLUG . self::RESOURCE_VERSION
+
+        $options = $wpdb->get_results(
+            $wpdb->prepare(
+                "DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+                IAMG_SLUG . self::RESOURCE_VERSION . '%'
+            )
+        );
+
         $versions = [];
         foreach ($options as $option) {
             $name = str_replace(IAMG_SLUG . self::RESOURCE_VERSION, "", $option->option_name);
@@ -953,6 +1053,7 @@ class Client
     private function get_versions()
     {
 //        $versions = [];
+        $versions['iamg'] = IAMG_VERSION;
         $versions['adminpres_version'] = get_option(IAMG_SLUG . self::ADMIN_EDITOR_VERSION);
         $versions['other_resources'] = $this->get_resource_versions();
 

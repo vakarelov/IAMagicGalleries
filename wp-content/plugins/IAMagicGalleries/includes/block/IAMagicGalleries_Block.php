@@ -13,23 +13,23 @@ if (!class_exists('IAMagicGalleries/AppSettings')) {
 if (!class_exists('IAMagicGalleries_Block')) {
     class IAMagicGalleries_Block
     {
-        const USE_MINIFIED = WP_DEBUG ? false : true;
-//        const USE_MINIFIED =  false;
+//        const USE_MINIFIED = WP_DEBUG ? false : true;
+        const USE_MINIFIED = false;
 
         public function __construct()
         {
-
             add_action('enqueue_block_editor_assets', [$this, 'load_iamg_block_files']);
             add_action('wp_ajax_iamgtest', [$this, 'texst_handle']);
         }
 
         function load_iamg_block_files()
         {
+            wp_register_script('lz-string', IAMG_URL . $this->script_selector('js/dist/lz-string'));
             wp_register_script("IAPresenter_loader", IAMG_URL . $this->script_selector('js/iaPresenter_loader'));
             wp_enqueue_script(
                 'iamg-block-script',
                 IAMG_URL . $this->script_selector('js/iamg-block'),
-                array('wp-blocks', 'wp-i18n', 'wp-editor', 'jquery', 'IAPresenter_loader'),
+                array('wp-blocks', 'wp-i18n', 'wp-editor', 'jquery', 'lz-string', 'IAPresenter_loader'),
                 IAMG_VERSION
             );
 
@@ -44,7 +44,7 @@ if (!class_exists('IAMagicGalleries_Block')) {
                 true
             );
 
-            $version = get_bloginfo( 'version' );
+            $version = get_bloginfo('version');
             $app_settings['wp_version'] = $version;
 
             wp_localize_script('iamg-block-script', 'iap_loader_settings',
@@ -60,7 +60,7 @@ if (!class_exists('IAMagicGalleries_Block')) {
                     'iamg-def-styles',
                     IAMG_URL . 'css/ia_presenter_general.css'
                 );
-            } else{
+            } else {
                 wp_enqueue_style(
                     'iamg-def-styles',
                     IAMG_URL . 'css/ia_general.min.css'
@@ -68,10 +68,12 @@ if (!class_exists('IAMagicGalleries_Block')) {
             }
 
 
-            if (is_admin()) wp_enqueue_style(
-                'iamg-admin-styles',
-                IAMG_URL . 'css/ia_presenter_admin.css'
-            );
+            if (is_admin()) {
+                wp_enqueue_style(
+                    'iamg-admin-styles',
+                    IAMG_URL . 'css/ia_presenter_admin.css'
+                );
+            }
             wp_enqueue_style(
                 'video-js',
                 IAMG_URL . 'css/video-js.css'
@@ -113,10 +115,10 @@ if (!class_exists('IAMagicGalleries_Block')) {
 
         private function script_selector($name)
         {
-            if (self::USE_MINIFIED){
-                return $name.".min.js";
-            } else{
-                return $name.".js";
+            if (self::USE_MINIFIED) {
+                return $name . ".min.js";
+            } else {
+                return $name . ".js";
             }
         }
     }

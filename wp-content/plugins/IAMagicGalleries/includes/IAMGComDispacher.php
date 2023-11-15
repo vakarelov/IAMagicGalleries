@@ -121,13 +121,14 @@ class IAMGComDispacher
      */
     public function load_app()
     {
-        header('Content-Type: application/x-javascript; charset=utf-8');
+//        header('Content-Type: application/x-javascript; charset=utf-8');
         $client = new Client();
         $exp = $client->get_app_time();
         $cache_time = $exp - round(microtime(true));
         header("Cache-Control: max-age=" . $cache_time);
         $is_editor = is_admin() && (isset($_GET['editor']) || isset($_POST['editor']));
-        echo $client->get_app($is_editor);
+        wp_send_json($client->get_app($is_editor));
+
         wp_die();
     }
 

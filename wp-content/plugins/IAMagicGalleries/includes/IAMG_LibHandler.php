@@ -78,9 +78,9 @@ class IAMG_LibHandler
         if (true ||$expire_time - $current_time < 24 * 60 * 60) {
             $this->getClient()->update_app_script();
 //            update_option($this->getSlug("_app_script_last"), date("Y-m-d H:i:s"));
-            update_option("ia_lib_epire_test_loaded", date("Y-m-d H:i:s"));
+            update_option("ia_lib_epire_test_loaded", gmdate("Y-m-d H:i:s"));
         } else{
-            update_option("ia_lib_epire_test_checked", date("Y-m-d H:i:s"));
+            update_option("ia_lib_epire_test_checked", gmdate("Y-m-d H:i:s"));
         }
 
     }

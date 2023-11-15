@@ -44,8 +44,7 @@ class AppSettingsBuilder
         $editor = false,
         $width = 680,
         $height = 600
-    )
-    {
+    ) {
         if (is_string($resources)) {
             $sizeBehaviour = $resources;
             $resources = null;
@@ -89,10 +88,10 @@ class AppSettingsBuilder
 //			"post_scripts"  => [ [ 'presentation_expander.js', 'presentation_expander_loaded' ] ]
         ];
 
-        if ($width){
+        if ($width) {
             $settings['width'] = $width;
         }
-        if ($height){
+        if ($height) {
             $settings['height'] = $height;
         }
 
@@ -133,7 +132,8 @@ class AppSettingsBuilder
         ];
     }
 
-    public function get_app_link(){
+    public function get_app_link()
+    {
         return $this->get_app_link_internal();
     }
 
@@ -144,9 +144,11 @@ class AppSettingsBuilder
 
         $url = admin_url('admin-ajax.php');
         $url .= '?action=iamg_app&v=' . $time;
-        if ($editor) $url .= '&editor';
-        return $url;
+        if ($editor) {
+            $url .= '&editor';
+        }
 
+        return ["url" => $url, "encrypted" => true, "cache" => ($editor) ? 'iaPresenterEditor' : 'iaPresenter'];
     }
 
     private function get_client(): Client

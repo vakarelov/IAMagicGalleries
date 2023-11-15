@@ -44,10 +44,10 @@ var IA_Presenter_loader = (function (root) {
             'dist/minify.json.min.js', function () {
             return JSON.hasOwnProperty('minify');
         }],
-        [
-            'dist/lz-string.min.js', function () {
-            return window.hasOwnProperty('LZString');
-        }],
+        // [
+        //     'dist/lz-string.min.js', function () {
+        //     return window.hasOwnProperty('LZString');
+        // }],
         // [
         //     'dist/howler.min.js', function () {
         //     return window.hasOwnProperty('Howl');
@@ -188,10 +188,10 @@ var IA_Presenter_loader = (function (root) {
                         } else if (pres = taget.attr('presentation')) {
                             if (pres.startsWith('base64:')) {
                                 let decomp = LZString.decompressFromBase64(pres.slice(7));
-                                if (!decomp){
+                                if (!decomp) {
                                     decomp = atob(pres.slice(7))
                                 }
-                                settings.initial_graphics = {svg:decomp };
+                                settings.initial_graphics = {svg: decomp};
                                 taget.attr('presentation', '');
                             } else if (pres.startsWith('http')) {
                                 settings.initial_graphics = pres;
@@ -279,27 +279,38 @@ var IA_Presenter_loader = (function (root) {
             main_scripts = [...settings.pre_scripts, ...main_scripts];
         }
 
-        var load_main = function (url, hash) {
+        var load_main = function (url, cache, encrypted) {
             const defer = jQuery.Deferred();
 
             debug && console.log('Loading ', url);
-            // if (hash) {
-            //   jQuery.get(url, undefined, function(base64Script, textStatus) {
-            //     const time = performance.now();
-            //     let hexMd5 = jQuery.crypto.hex_md5(base64Script);
-            //     debug && console.log(hexMd5, hash, performance.now() - time);
-            //     if (hexMd5 === hash) {
-            //       let script = atob(base64Script);
-            //       jQuery.globalEval(script);
-            //       debug && console.log('Loaded ', url);
-            //       defer.resolve();
-            //     }
-            //   }, 'text');
-            // } else {
-            jQuery.getScript(url).done(function (script, textStatus) {
-                defer.resolve();
-            });
-            // }
+
+            if (encrypted) {
+                let done = false;
+                if (cache && typeof cache === 'string') {
+                    let local = localStorage.getItem(cache);
+                    if (local) {
+                        local = JSON.parse(local);
+                        if (local.url === url) {
+                            load_secure_scripts(local.data, defer);
+                            done = true;
+                        }
+                    }
+                }
+                !done && jQuery.getJSON(url, function (data) {
+                    if (cache) {
+                        localStorage.setItem(cache, JSON.stringify({
+                            url: url,
+                            data: data
+                        }));
+                    }
+                    load_secure_scripts(data, defer);
+                })
+            } else {
+                jQuery.getScript(url).done(function (script, textStatus) {
+                    defer.resolve();
+                });
+            }
+
             return defer.promise();
         };
 
@@ -307,18 +318,24 @@ var IA_Presenter_loader = (function (root) {
         jQuery.ajaxSetup({cache: true});
 
         main_scripts.forEach(function (url) {
-            let base64_encoded_script = false;
+            let cache = false;
             if (Array.isArray(url)) {
                 if (typeof url[1] === 'function' && url[1]()) return;
                 debug && console.log(url);
-                if (url[1] === 'base64') base64_encoded_script = url[2];
-
+                // if (url[1] === 'base64') base64_encoded_script = url[2];
                 url = url[0];
-
             }
 
-            url = (url.startsWith('http')) ? url : relative_script_path + url;
-            defers.push(load_main(url, base64_encoded_script));
+            if (typeof url === 'string') {
+                url = (url.startsWith('http')) ? url : relative_script_path + url;
+                defers.push(load_main(url));
+            }
+            if (typeof url === 'object' && url.encrypted) {
+                cache = url.cache || false;
+                url = url.url;
+                url = (url.startsWith('http')) ? url : relative_script_path + url;
+                defers.push(load_main(url, cache, true));
+            }
         });
 
         var promice = jQuery.when.apply($, defers);
@@ -383,6 +400,73 @@ var IA_Presenter_loader = (function (root) {
         }
 
         load_activated = undefined;
+    }
+
+    let $pk = /**PK*/"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1AkiRDA8A0r3Px0C86hqACpn9Ui0EYsvxWykXEZRAz0WpyuidWPNhZqxmCwraVk8gFZyrVKCA5ghTsG184tWXPcdNK7eISTjfNpflulRM1VHofpkRlHZmstm3ay5rn9GUix7DBM+bRf/QFK3QxT4bQAzOoVvLCAa0DDEiwklquC63XPWv3JMW4kg1R356zQB/AheE/Ay1CGzHzTgn1kpPFrbLSz4DUYmuJqpQW5x9RawQ/wHsMbZFfuv9aqvhPoMsstmalAJ90DNWU8K/GU8RWxZdIksMQGvBVVOPHtwh0LYLfXGNdQvIOv9WlbjL/oFNukjngoD5Vv4cUu8Y4Tz4QIDAQAB"/**PK*/;
+
+    async function load_secure_scripts(scripts, defer) {
+        if (!Array.isArray(scripts)) {
+            defer.reject();
+            return;
+        }
+
+        // Function to convert a string to an ArrayBuffer
+        function str2ab(str) {
+            const buf = new ArrayBuffer(str.length);
+            const bufView = new Uint8Array(buf);
+            for (let i = 0, strLen = str.length; i < strLen; i++) {
+                bufView[i] = str.charCodeAt(i);
+            }
+            return buf;
+        }
+
+        // Convert the public key to an ArrayBuffer
+        const publicKeyArrayBuffer = str2ab(atob($pk));
+
+        const importedPublicKey = await crypto.subtle.importKey(
+            "spki",
+            publicKeyArrayBuffer,
+            {name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256'},
+            false,
+            ["verify"]
+        );
+
+
+        let processed_scripts = await Promise.all(scripts.map(async (script, i) => {
+            let data = script.data;
+            let signature = script.sign;
+
+            if (!data || !signature) return;
+
+            const isSignatureValid = await crypto.subtle.verify(
+                {name: 'RSASSA-PKCS1-v1_5'},
+                importedPublicKey,
+                str2ab(atob(signature)),
+                str2ab(data)
+            );
+
+            if (isSignatureValid) {
+                data = LZString.decompressFromBase64(data);
+                if (!data) data = atob(data);
+                if (data) {
+                    return data;
+                }
+            }
+
+            defer.reject();
+            return Promise.reject();
+
+        }));
+
+        if (processed_scripts) {
+            processed_scripts = processed_scripts.filter(Boolean);
+            if (processed_scripts.length === scripts.length) {
+                processed_scripts.forEach((script) => {
+                    Function('"use strict"; ' + script)();
+                });
+                defer.resolve();
+            }
+        }
     }
 
     function error_loading(scr, textStatus) {

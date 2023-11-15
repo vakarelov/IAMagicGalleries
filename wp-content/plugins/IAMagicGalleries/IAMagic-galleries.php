@@ -25,9 +25,10 @@ if (!defined("ABSPATH")) {
     exit;
 }
 
+
 //DEFINITIONS
 
-define("IAMG_VERSION", '1.1.0');
+define("IAMG_VERSION", '1.1.1');
 define("IAMG", 1);
 define("IAMG_MAIN_FILE", __FILE__);
 define("IAMG_PATH", plugin_dir_path(IAMG_MAIN_FILE));
@@ -47,50 +48,45 @@ define("IAMG_PREFIX", 'iamg_');
 
 define("IAMG_JS_URL", IAMG_URL . 'js/');
 
+/**TESTING*/
 if (file_exists(IAMG_PATH . '/_test/defs.php')) {
     require_once IAMG_PATH . '/_test/defs.php';
+
 } else {
+    /**TESTING/*/
+
     define("IAMG_API_URL", "https://iaesth.ca/apps/IAMG/com");
     define("IAMG_API_URL_BACKUP", "https://infoaesthetics.ca/apps/IAMG/com");
-}
+
+    /**TESTING*/
+}/**TESTING/*/
 
 
-//for debugging remove
-//add_filter('allowed_http_origins', 'add_allowed_origins');
-//function add_allowed_origins($origins)
-//{
-//    $origins[] = 'http://sandbox.pri';
-//    return $origins;
-//}
 
 //Define posttype and admin menus
 require_once IAMG_INCLUDES_PATH . 'IAMG_posttype.php';
+
 if (is_admin()) {
     require_once IAMG_INCLUDES_PATH . 'IAMG_submenue.php';
 }
 
 
-require_once IAMG_INCLUDES_PATH . 'IAMG_Activation.php';
-
-//Adds crone jobs to check if app library must be updated
+require_once IAMG_INCLUDES_PATH . 'IAMG_Activation.php';//Adds crone jobs to check if app library must be updated
 require_once IAMG_INCLUDES_PATH . 'IAMG_LibHandler.php';
-
-require_once IAMG_INCLUDES_PATH . 'IAMGComDispacher.php';
-
-//This must be after IAMGComDispacher.php
+require_once IAMG_INCLUDES_PATH . 'IAMGComDispacher.php';//This must be after IAMGComDispacher.php
 if (is_admin()) {
     require_once IAMG_INCLUDES_PATH . 'block/IAMagicGalleries_Block.php';
-//    require_once IAMG_INCLUDES_PATH . 'Gallery_Gen_Link.php';
+    //    require_once IAMG_INCLUDES_PATH . 'Gallery_Gen_Link.php';
     require_once IAMG_INCLUDES_PATH . 'IAMG_admin_notices.php';
 }
-
 require_once IAMG_INCLUDES_PATH . 'IAMG_App_Loader.php';
 
-
-//For testing
+/**TESTING*/
 if (file_exists(IAMG_PATH . '/_test/test.php')) {
     require_once IAMG_PATH . '/_test/test.php';
 }
+/**TESTING/*/
+
 
 
 
