@@ -32,6 +32,7 @@ class IAMG_App_Loader
     private $client;
 
     const USE_MINIFIED = false; //!WP_DEBUG; //false;
+//    const USE_MINIFIED = true;
 
     function __construct()
     {
@@ -139,7 +140,7 @@ class IAMG_App_Loader
             IAMG_VERSION
         );
 
-        $initial_graphics = admin_url('admin-ajax.php') . "?action=iamg_builder_pres";
+        $initial_graphics = admin_url('admin-ajax.php') . "?action=iamg_builder_pres"."&_nonce=" . wp_create_nonce('iamg_admin_direct');
         $app_settings_handler = new AppSettingsBuilder($initial_graphics);
 
         $iamg_settings = $app_settings_handler->setup_load_json([

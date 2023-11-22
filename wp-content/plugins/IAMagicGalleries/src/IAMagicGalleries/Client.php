@@ -199,26 +199,26 @@ class Client
             return !!$el;});
 
         //old code
-
-        $blocks = get_option(IAMG_SLUG . self::APP_SCRIPT_BLOCKS);
-//        $gzuncompress = gzuncompress(base64_decode($lib));
-//        return $blocks;
-//        return $blocks . PHP_EOL . $this->decrypt($gzuncompress, null, $blocks);
-
-//        return $this->get_pre_app($blocks);
-
-        //the data must be decoded and decrypted from the format provided by the SAS server to be passed to the client.
-        try {
-            return $this->get_pre_app($blocks) . "; \n" . gzuncompress($this->decrypt(base64_decode($lib), null,
-                    $blocks, false, true))
-                . "; \n" . $this->get_post_app();
-        } catch (\Exception $e) {
-            if ($e->getCode() === 100) {
-                update_option(IAMG_SLUG . self::APP_SCRIPT, "", false);
-                $this->update_app_script();
-                return ($retry) ? $this->get_app(false, false) : "";
-            }
-        }
+//
+//        $blocks = get_option(IAMG_SLUG . self::APP_SCRIPT_BLOCKS);
+////        $gzuncompress = gzuncompress(base64_decode($lib));
+////        return $blocks;
+////        return $blocks . PHP_EOL . $this->decrypt($gzuncompress, null, $blocks);
+//
+////        return $this->get_pre_app($blocks);
+//
+//        //the data must be decoded and decrypted from the format provided by the SAS server to be passed to the client.
+//        try {
+//            return $this->get_pre_app($blocks) . "; \n" . gzuncompress($this->decrypt(base64_decode($lib), null,
+//                    $blocks, false, true))
+//                . "; \n" . $this->get_post_app();
+//        } catch (\Exception $e) {
+//            if ($e->getCode() === 100) {
+//                update_option(IAMG_SLUG . self::APP_SCRIPT, "", false);
+//                $this->update_app_script();
+//                return ($retry) ? $this->get_app(false, false) : "";
+//            }
+//        }
     }
 
     private function get_pre_app($blocks = PHP_INT_MAX, $respond_security = true)
@@ -228,22 +228,22 @@ class Client
 
         //Old code
 
-        $pre = ';console.log("IA Magic Galleries Loading .... ' . gmdate("Y-m-d H:i:s") . ' ");';
-
-        if (get_option(IAMG_SLUG . self::APP_HAS_PRE_SCRIPT)) {
-            try {
-                return $pre .
-                    gzuncompress($this->decrypt(base64_decode(get_option(IAMG_SLUG . self::APP_PRE_SCRIPT)), null,
-                        $blocks, false, true));
-            } catch (\Exception $e) {
-                if ($e->getCode() === 100) {
-                    update_option(IAMG_SLUG . self::APP_PRE_SCRIPT, "", false);
-                    $this->update_app_script();
-                    return $respond_security ? $this->get_pre_app($blocks, false) : "";
-                }
-            }
-        }
-        return $pre;
+//        $pre = ';console.log("IA Magic Galleries Loading .... ' . gmdate("Y-m-d H:i:s") . ' ");';
+//
+//        if (get_option(IAMG_SLUG . self::APP_HAS_PRE_SCRIPT)) {
+//            try {
+//                return $pre .
+//                    gzuncompress($this->decrypt(base64_decode(get_option(IAMG_SLUG . self::APP_PRE_SCRIPT)), null,
+//                        $blocks, false, true));
+//            } catch (\Exception $e) {
+//                if ($e->getCode() === 100) {
+//                    update_option(IAMG_SLUG . self::APP_PRE_SCRIPT, "", false);
+//                    $this->update_app_script();
+//                    return $respond_security ? $this->get_pre_app($blocks, false) : "";
+//                }
+//            }
+//        }
+//        return $pre;
     }
 
     private function get_post_app($editor = false)
@@ -263,7 +263,9 @@ class Client
     public function get_admin_presentation()
     {
         if (get_option(IAMG_SLUG . self::ADMIN_EDITOR)) {
-            return gzuncompress(base64_decode(get_option(IAMG_SLUG . self::ADMIN_EDITOR)));
+            return get_option(IAMG_SLUG . self::ADMIN_EDITOR);
+
+//            return gzuncompress(base64_decode(get_option(IAMG_SLUG . self::ADMIN_EDITOR)));
         }
         return "";
     }
@@ -558,7 +560,7 @@ class Client
             try {
                 $results = $this->send_request(["wp" => admin_url('admin-ajax.php')], $this->routes["register"], true,
                     0);
-                update_option(IAMG_SLUG . "_called_reg_client", $results);
+//                update_option(IAMG_SLUG . "_called_reg_client", $results);
             } catch (\Exception $e) {
                 update_option(IAMG_SLUG . "_called_reg_client_exception", $e->getMessage());
                 return $e->getMessage();
@@ -713,19 +715,12 @@ class Client
         }
 
         if ($try_backup && !$backup_server) {
-            echo "Backup server";
             return $this->send_request($params, $route, $blocking, $encrypt, true);
         } elseif ($try_backup && $backup_server) {
             return ["error2" => $error_code];
         }
 
         $body = json_decode($response['body'], true);
-
-//        if (!$encrypt) {
-//            print_r( json_decode($post_params['body'])."\n");
-//            print_r($response['body']."\n");
-////            print_r(wp_json_encode($post_params));
-//        }
 
         $body["contact_server"] = $backup_server ? "backup" : "main";
         return $body;

@@ -59,9 +59,10 @@ class AppSettingsBuilder
         $controllers = $resources['controllers'];
         $tools = $resources['tools'];
 
-        $ajax_url = admin_url('admin-ajax.php') . "?action=iamg_com";
-//        $resoruces_path = IAMG_URL . "resources/"; //"resources/process.php?target=";
-        $resoruces_path = IAMG_URL . "resources/process.php?target=";
+        $ajax_url = admin_url('admin-ajax.php') ."?"
+            . "_nonce=" . wp_create_nonce('iamg_admin_direct') . "&"
+            ."action=iamg_com";
+        $resoruces_path = IAMG_URL . "resources/process.php?_nonce=" . wp_create_nonce('iamg_direct') . "&target=";
 
         $settings = [
             "panel_setting" => [

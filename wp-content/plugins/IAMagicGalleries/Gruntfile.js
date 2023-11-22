@@ -98,6 +98,16 @@ module.exports = function (grunt) {
         },
         copy: {
             main: {
+                options: {
+                    process: function (content, srcpath) {
+                        // console.log(srcpath);
+                        if (srcpath.endsWith('.php')) {
+                            content = content.replace(/\/\*\*TESTING\*\/[\s\S]*?\/\*\*TESTING\/\*\//g, "");
+                            // console.log("processed: " + srcpath);
+                        }
+                        return content;
+                    },
+                },
                 expand: true,
                 src: ['**/*', '!**/*.psd', '!resources/**', '!node_modules/**', '!Gruntfile.js', '!package.json', '!package-lock.json', '!composer.json', '!composer.lock', '!log.txt', '!notes/**', '!**/*.js.map', '!**/*.back'],
                 dest: 'C:/Users/okv/Desktop/IAMagicGalleries/',
@@ -130,11 +140,11 @@ module.exports = function (grunt) {
                     {
                         cwd: 'C:/Users/okv/Desktop/IAMagicGalleries',
                         src: ['**'],
-                        dest: 'IAMagicGalleries/',
+                        dest: 'ia-magic-galleries/',
                     }
                 ]
             }
-        }
+        },
 
 
     });
@@ -153,9 +163,10 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-curl');
     grunt.loadNpmTasks('grunt-text-replace');
+    // grunt.loadNpmTasks('grunt-shell');
 
 
-    grunt.registerTask('default', ['curl', 'replace', 'uglify', 'cssmin']);
+    grunt.registerTask('default', ['curl', 'replace:dist', 'uglify', 'cssmin']);
 
     grunt.registerTask('produce', ['clean', 'copy', 'compress']);
 

@@ -4,6 +4,8 @@
  * This work is licensed under the GPL2, V2 license.
  */
 
+use IAMagicGalleries\Client;
+
 if (!defined('WPINC')) {
     exit;
 }
@@ -44,22 +46,22 @@ class IAMG_posttype
 
         $label = array(
             'name' => 'IA Magic Galleries',
-            'singular_name' => __('IAMG', 'IAMG'),
-            'all_items' => __('Manage Galleries', 'IAMG'),
-            'add_new' => __('Add Gallery', 'IAMG'),
+            'singular_name' => __('IAMG', 'ia-magic-galleries'),
+            'all_items' => __('Manage Galleries', 'ia-magic-galleries'),
+            'add_new' => __('Add Gallery', 'ia-magic-galleries'),
 //		'add_new_item'  => __( 'Add Gallery', 			'IAMG' ),
-            'edit_item' => __('Edit Gallery Post', 'IAMG'),
+            'edit_item' => __('Edit Gallery Post', 'ia-magic-galleries'),
 
-            'add_new_item' => __('Add New IA Magic Gallery', 'IAMG'),
-            'view_item' => __('View IA Magic Gallery', 'IAMG'),
+            'add_new_item' => __('Add New IA Magic Gallery', 'ia-magic-galleries'),
+            'view_item' => __('View IA Magic Gallery', 'ia-magic-galleries'),
 
-            'search_items' => __('Search Magic Galleries', 'IAMG'),
-            'parent_item_colon' => __('Parent Magic Galleries:', 'IAMG'),
-            'not_found' => __('No galleries found.', 'IAMG'),
-            'not_found_in_trash' => __('No galleries found in Trash.', 'IAMG'),
+            'search_items' => __('Search Magic Galleries', 'ia-magic-galleries'),
+            'parent_item_colon' => __('Parent Magic Galleries:', 'ia-magic-galleries'),
+            'not_found' => __('No galleries found.', 'ia-magic-galleries'),
+            'not_found_in_trash' => __('No galleries found in Trash.', 'ia-magic-galleries'),
 
-            'menu_name' => _x('IA Magic Galleries', 'admin menu', 'IAMG'),
-            'name_admin_bar' => _x('IAMG', 'add new on admin bar', 'IAMG'),
+            'menu_name' => _x('IA Magic Galleries', 'admin menu', 'ia-magic-galleries'),
+            'name_admin_bar' => _x('IAMG', 'add new on admin bar', 'ia-magic-galleries'),
 
         );
 
@@ -73,7 +75,7 @@ class IAMG_posttype
         $args = array(
             'labels' => $label,
 
-            'description' => __('IA Magic Galleries, dynamic galleries for you site', 'IAMG'),
+            'description' => __('IA Magic Galleries, dynamic galleries for you site', 'ia-magic-galleries'),
 
             'rewrite' => false, //array('slug' => 'gallery', 'with_front' => true),
             'public' => true,
@@ -412,8 +414,8 @@ class IAMG_posttype
 
     public
     static function get_post_presentation(
-        $local_id,
-        $decode = true
+        $local_id
+//        ,$decode = false //we don't do direct decoding anymore, the client handles decoding
     ) {
         global $wpdb;
         $sql = "SELECT meta_value FROM 
@@ -426,8 +428,9 @@ class IAMG_posttype
         $result = $wpdb->get_results($wpdb->prepare($sql, $local_id));
 
         if (isset($result[0]) && isset($result[0])) {
-            return ($decode) ? base64_decode($result[0]->meta_value)
-                : $result[0]->meta_value;
+            return
+//                ($decode) ? base64_decode($result[0]->meta_value) :
+                    $result[0]->meta_value;
         } else {
             $post = self::get_post($local_id);
             $content = ($post) ? get_post_meta($post->ID, "presentation", true) : null;
@@ -437,7 +440,9 @@ class IAMG_posttype
                     require_once(IAMG_CLASSES_PATH . "Client.php");
                     $content = (new Client())->process_secure_presentation($content, $encripted);
                 }
-                return ($decode) ? base64_decode($content) : $content;
+                return
+//                    ($decode) ? base64_decode($content) :
+                        $content;
             }
         }
         return null;
@@ -452,22 +457,22 @@ class IAMG_posttype
 
     public
     static function render_post(
-        $pres_base64 = null,
+        $pres = null,
         $behaviour = "fixed",
         $parameters = null,
         $style_str = ''
     ) {
-        if (!$pres_base64) {
-            $pres_base64 = get_post_meta(get_the_ID(), "presentation", true);
+        if (!$pres) {
+            $pres = get_post_meta(get_the_ID(), "presentation", true);
         }
-        if ($pres_base64){
+        if ($pres){
             $encrypted = get_post_meta(get_the_ID(), "encrypted", true);
             if ($encrypted) {
                 require_once(IAMG_CLASSES_PATH . "Client.php");
-                $pres_base64 = (new Client())->process_secure_presentation($pres_base64, $encrypted);
+                $pres = (new Client())->process_secure_presentation($pres, $encrypted);
             }
         }
-        if (!$pres_base64) {
+        if (!$pres) {
             return "";
         }
 
@@ -492,11 +497,11 @@ class IAMG_posttype
             $attr_str .= ' style="' . $style_str . '" ';
         }
 
-//        print_r("<br>" . $attr_str . "<br>");
 //        $attr_str .= ' style="height:80vh;width:400px;margin-left:calc(50% - 200px)"';
 //        $attr_str .= ' data-parent-attributes="data-align:full"';
 
-        $div = '<div class="IA_Presenter_Container" behaviour="' . $behaviour . '" presentation="base64:' . $pres_base64 . '"'
+        $div = '<div class="IA_Presenter_Container" behaviour="' . $behaviour
+            . '" presentation="base64:' . $pres . '" '
             . $attr_str .
             '></div>';
 
@@ -527,8 +532,8 @@ class IAMG_posttype
         $var = array_slice($columns, 0, 1, true) +
 //            ['icon' => ''] +
             array_slice($columns, 1, null, true) + [
-                IAMG_POST_TYPE . '_media_count' => __('Media', 'iamg'),
-                IAMG_POST_TYPE . '_shortcode' => __('Shortcode', 'iamg')
+                IAMG_POST_TYPE . '_media_count' => __('Media', 'ia-magic-galleries'),
+                IAMG_POST_TYPE . '_shortcode' => __('Shortcode', 'ia-magic-galleries')
             ];
         return $var;
 //        return array_slice( $columns, 0, 1, true ) +
@@ -561,7 +566,7 @@ class IAMG_posttype
                 }
 
                 $num_images = count($params['images']);
-                echo (string)$num_images . " " . "images" . __($num_images === 1 ? '' : 's', 'iamg');
+                echo (string)$num_images . " " . "images" . __($num_images === 1 ? '' : 's', 'ia-magic-galleries');
                 break;
 
             case IAMG_POST_TYPE . '_shortcode':
@@ -643,7 +648,7 @@ class IAMG_posttype
                             //show the copied message
                             $('.iamg-shortcode-message').remove();
                             $(this).after('<p class="iamg-shortcode-message"><?php _e('Shortcode copied to clipboard!',
-                                'iamg'); ?></p>');
+                                'ia-magic-galleries'); ?></p>');
                         } catch (err) {
                             console.log('Oops, unable to copy!');
                         }

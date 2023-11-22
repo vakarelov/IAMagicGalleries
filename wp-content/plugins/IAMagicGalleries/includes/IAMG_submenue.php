@@ -99,7 +99,7 @@ class IAMG_Submenue
     {
         $client = new \IAMagicGalleries\Client();
         $pres = $client->get_admin_presentation();
-        echo IAMG_posttype::render_post(base64_encode($pres), 'fixed', null, "height:90vh;");
+        echo IAMG_posttype::render_post($pres, 'fixed', null, "height:90vh;");
         ?>
         <img class="iamg-loading-gif" style="display: block;
     margin-left: auto;

@@ -24,11 +24,12 @@ class IAMGComDispacher
 
     /**
      * @var array[] $settings_defs global settings for the plugin
+     * //todo: move to separate class in future versions when more settings are available
      */
     static private $settings_defs = [
         'preserve_posts' => [
             'option' => 'preserve_posts_on_uninstall', //option name
-            'type' => true, //type of value as example
+            'type' => true, //type of value, as example
             'autoload' => false
         ],
 //        'test' => [
@@ -40,21 +41,20 @@ class IAMGComDispacher
 
     function __construct()
     {
-//        $basename = plugin_basename(__FILE__);
-//        list($this->slug, $_) = explode('/', $basename);
-//        $this->slug = IAMG_SLUG;
-
-//        $this->gen_link = new Gallery_Gen_Link();
 
         add_action('wp_ajax_iamg_com', [$this, 'dispacher']);
 
+        /**TESTING*/
         WP_DEBUG && add_action('wp_ajax_nopriv_iamg_com', [$this, 'dispacher']); //for debugging remove
+        /**TESTING/*/
 
         add_action('wp_ajax_iamg_app', [$this, 'load_app']);
-        add_action('wp_ajax_iamg_builder_pres', [$this, 'builder_presentation']);
         add_action('wp_ajax_nopriv_iamg_app', [$this, 'load_app']);
-        add_action('wp_ajax_iamg_pres', [$this, 'presentation']);
-        add_action('wp_ajax_nopriv_iamg_pres', [$this, 'presentation']);
+
+        add_action('wp_ajax_iamg_builder_pres', [$this, 'builder_presentation']);
+
+//        add_action('wp_ajax_iamg_pres', [$this, 'presentation']);
+//        add_action('wp_ajax_nopriv_iamg_pres', [$this, 'presentation']);
 
         add_filter('wp_prepare_attachment_for_js', [$this, '_attachment_monitor_filter']);
         add_filter('wp_insert_attachment_data', [$this, '_attachment_metadata_monitor_filter']);
@@ -69,18 +69,17 @@ class IAMGComDispacher
     public function dispacher()
     {
 
-        if (true || is_admin()) {
+        if (/**TESTING*/ true || /**TESTING/*/ is_admin()) {
             $output = null;
             $command = $this->_get_command();
             if ($command && $command[0] !== '_' && method_exists($this, $command)) {
                 $output = $this->$command();
                 wp_send_json($output);
-            }//		file_put_contents(__DIR__."/com.log", json_encode($output), FILE_APPEND);
+            }
             if ($output) {
                 wp_send_json($output);
             }
         }
-
 
         wp_die();
     }
@@ -92,6 +91,7 @@ class IAMGComDispacher
 
     private function _get_param($param)
     {
+        //nonce is checked by the appropriate
         if (isset($_POST[$param]) && $_POST[$param]) {
             return $_POST[$param];
         }
@@ -121,7 +121,9 @@ class IAMGComDispacher
      */
     public function load_app()
     {
-//        header('Content-Type: application/x-javascript; charset=utf-8');
+        // This is a public endpoint that should be cached by browser, so need NOT verify a nonce
+        // Client implements signature verification for this resource. See iaPresenter_loader.js
+
         $client = new Client();
         $exp = $client->get_app_time();
         $cache_time = $exp - round(microtime(true));
@@ -137,26 +139,21 @@ class IAMGComDispacher
      * Serve the IA Presenter app to client
      * @return void
      */
-    function presentation()
-    {
-        $id = $this->_get_param("id");
-        if ($id) {
-//            echo $id;
-//            $post = IAMG_posttype::get_post($id);
+//    function presentation()
+//    {
+//        $id = $this->_get_param("id");
+//        if ($id) {
+//            $content = IAMG_posttype::get_post_presentation($id);
 //
-//            $content = ($post) ? get_post_meta($post->ID, "presentation", true) : null;
-
-            $content = IAMG_posttype::get_post_presentation($id);
-
-            if ($content) {
-                header('Content-type: image/svg+xml');
-//                header('Content-Type: text/plain');
-                echo $content;
-            }
-        }
-
-        wp_die();
-    }
+//            if ($content) {
+//                header('Content-type: image/svg+xml');
+////                header('Content-Type: text/plain');
+//                echo $content;
+//            }
+//        }
+//
+//        wp_die();
+//    }
 
     /**
      * Serv the Admin presentation for building galleries directly
@@ -164,10 +161,17 @@ class IAMGComDispacher
      */
     function builder_presentation()
     {
-        header('Content-type: image/svg+xml');
+        //plane text header
+        header('Content-Type: text/plain');
+
+        if (!$this->_verify_nonce(['iamg_block', 'iamg_admin_direct'])) {
+            return "";
+        }
+
         $client = new Client();
-//        echo file_get_contents(IAMG_PATH . 'resources/svg/admin.svg');
-        echo $client->get_admin_presentation();
+
+        //Snap_ia can load a presentation from base64 encoded LZ compressed string. Its needs to be prefixed with 'LZBase64:'
+        echo 'LZBase64:' . $client->get_admin_presentation();
         wp_die();
     }
 
@@ -182,6 +186,9 @@ class IAMGComDispacher
      */
     function save()
     {
+        if (!$this->_verify_nonce(['iamg_block', 'iamg_admin_direct'])) {
+            wp_send_json(['error' => 'Access Denied']);
+        }
         //secure save
         $block_id = $this->_get_param('block_id');
         $pres_id = $this->_get_param('pres_id');
@@ -193,26 +200,6 @@ class IAMGComDispacher
 
 
         $user_id = get_current_user_id();
-
-//        if (false && !$pres_id) {
-//            $contents = "base64:" . base64_encode(file_get_contents(IAMG_PATH . "resources/svg/morph.svg"));
-//            $content = '<div id="' . $title . '" class="IA_Presenter_Container IA_Designer_Container" ' .
-//                'data-block-id="' . $block_id . '" presentation="' . $contents . '"></div>';
-//
-//            $new_post = array(
-//                'post_title' => ($title) ?: "Magic Gallery",
-//                'post_content' => $content,
-//                'post_status' => 'draft',
-//                'post_author' => $user_id,
-//                'post_type' => IAMG_POST_TYPE,
-////				'post_category' => array($categoryID)
-//            );
-//
-//            $new_id = wp_insert_post($new_post);
-//            if ($new_id || !is_wp_error($new_id)) {
-//                $pres_id = (string)$new_id;
-//            }
-//        }
 
 
         if (!$pres_id) {
@@ -254,6 +241,10 @@ class IAMGComDispacher
      */
     function images()
     {
+        if (!$this->_verify_nonce(['iamg_block', 'iamg_admin_direct'])) {
+            return ['error' => 'Access Denied'];
+        }
+
         $start = (int)$this->_get_param('start');
         $num_images = $this->_get_param('number_results');
         $album = $this->_get_param('album');
@@ -279,6 +270,10 @@ class IAMGComDispacher
      */
     function videos()
     {
+        if (!$this->_verify_nonce(['iamg_block', 'iamg_admin_direct'])) {
+            return ['error' => 'Access Denied'];
+        }
+
         $start = (int)$this->_get_param('start');
         $num_images = $this->_get_param('number_results');
         //todo: add albums
@@ -303,6 +298,9 @@ class IAMGComDispacher
      */
     function make_gallery()
     {
+        if (!$this->_verify_nonce(['iamg_block', 'iamg_admin_direct'])) {
+            return ['error' => 'Access Denied'];
+        }
 
         $type = $this->_get_param("gallery_type");
         $images = $this->_get_param("images");
@@ -384,6 +382,9 @@ class IAMGComDispacher
      */
     function settings()
     {
+        if (!$this->_verify_nonce('iamg_settings')) {
+            return ['error' => 'Access Denied'];
+        }
         $updated = [];
         foreach (self::$settings_defs as $sett => $def) {
             $setting_val = $this->_get_param($sett);
@@ -403,6 +404,20 @@ class IAMGComDispacher
             return IAMG_SLUG . '_' . self::$settings_defs[$setting]['option'];
         }
         return '';
+    }
+
+    private function _verify_nonce($actions){
+        $nonce = $this->_get_param('_nonce');
+        if (!is_array($actions)) {
+            $actions = [$actions];
+        }
+        for ($i = 0; $i < count($actions); $i++) {
+            if (wp_verify_nonce($nonce, $actions[$i])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //Monitors

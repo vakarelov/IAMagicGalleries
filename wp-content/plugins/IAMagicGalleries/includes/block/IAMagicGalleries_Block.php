@@ -33,7 +33,7 @@ if (!class_exists('IAMagicGalleries_Block')) {
                 IAMG_VERSION
             );
 
-            $initial_graphics = admin_url('admin-ajax.php') . "?action=iamg_builder_pres";
+            $initial_graphics = admin_url('admin-ajax.php') . "?action=iamg_builder_pres"."&_nonce=" . wp_create_nonce('iamg_block');
             $app_settings_handler = new AppSettingsBuilder($initial_graphics);
 
             $app_settings = $app_settings_handler->setup_load_json([
@@ -46,6 +46,7 @@ if (!class_exists('IAMagicGalleries_Block')) {
 
             $version = get_bloginfo('version');
             $app_settings['wp_version'] = $version;
+//            $app_settings['_nonce'] = wp_create_nonce('iamg_block');
 
             wp_localize_script('iamg-block-script', 'iap_loader_settings',
                 $app_settings

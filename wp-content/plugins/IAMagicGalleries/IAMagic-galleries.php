@@ -5,7 +5,7 @@
  */
 
 /*
-Plugin Name: IA Magic Galleries
+Plugin Name: IA Magic Galleries TEST
 Plugin URI: https://iaesth.ca/wp/
 Description: The plugin facilitates the integration of the IA Magic Galleries system into the WordPress environment.
 Version: 1.1.0
@@ -15,7 +15,7 @@ License: GPL2, V2
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 5.8
 Requires PHP:      7.3
-Text Domain:       iamg
+Text Domain:       ia-magic-galleries
 */
 
 if (!defined('WPINC')) {
@@ -37,7 +37,7 @@ define("IAMG_CLASSES_PATH", IAMG_PATH . 'src/IAMagicGalleries/');
 
 
 list($slug, $_) = explode('/', plugin_basename(__FILE__));
-define("IAMG_SLUG", (extension_loaded('mbstring')) ? mb_strtolower($slug) : strtolower($slug));
+define("IAMG_SLUG", (extension_loaded('mbstring')) ? mb_strtolower($slug) : strtolower($slug)); //ia-magic-galleries
 
 define("IAMG_URL", plugin_dir_url(__FILE__));
 

@@ -45,7 +45,11 @@ if (isset($get_resource[$target])) {
     require_once __DIR__ . '/../../../../wp-load.php';
     $inst = $get_resource[$target];
 
-    if (isset($inst[2]) && $inst[2] && !is_admin()) {
+    $nonce  = (isset($_GET["_nonce"])) ? wp_verify_nonce($_GET['_nonce'], 'iamg_direct') : false;
+
+    $admin_restriction = isset($inst[2]) && $inst[2] && !is_admin();
+
+    if (!$nonce || $admin_restriction) {
         http_response_code(404);
         die();
     }

@@ -37,7 +37,7 @@ class AdminNotice
     }
 
     public static function echo_notice($message, $type = self::INFO){
-        $message = __($message, 'iamg');
+        $message = __($message, 'ia-magic-galleries');
         $classes = "notice iamg-notice is-dismissible";
         if (!isset(self::$notice_types_classes[$type])) $type = self::INFO;
         $classes .= " ". self::$notice_types_classes[$type];
