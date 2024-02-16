@@ -7,13 +7,14 @@
 
 //namespace IAMagicGalleries;
 
-use IAMagicGalleries\Client;
+use IAMagicGalleries\IAMG_Client;
 
 if (!defined('WPINC')) {
     exit;
 }
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed
 
-require_once(IAMG_CLASSES_PATH . "Client.php");
+require_once(IAMG_CLASSES_PATH . "IAMG_Client.php");
 
 /**
  * The class handles with the scheduler for the library update.
@@ -43,12 +44,12 @@ class IAMG_LibHandler
     /**
      * @return mixed|null
      */
-    public function getClient(): Client
+    public function getClient(): IAMG_Client
     {
         if ($this->client) {
             return $this->client;
         }
-        return $this->client = new Client();
+        return $this->client = new IAMG_Client();
     }
 
     private function getSlug($sufix = "")
@@ -75,12 +76,12 @@ class IAMG_LibHandler
         $current_time = microtime(true);
         $expire_time = $this->getClient()->get_app_time();
 
-        if (true ||$expire_time - $current_time < 24 * 60 * 60) {
+        if ($expire_time - $current_time < 24 * 60 * 60) {
             $this->getClient()->update_app_script();
 //            update_option($this->getSlug("_app_script_last"), date("Y-m-d H:i:s"));
-            update_option("ia_lib_epire_test_loaded", gmdate("Y-m-d H:i:s"));
+//            update_option("ia_lib_epire_test_loaded", gmdate("Y-m-d H:i:s"));
         } else{
-            update_option("ia_lib_epire_test_checked", gmdate("Y-m-d H:i:s"));
+//            update_option("ia_lib_epire_test_checked", gmdate("Y-m-d H:i:s"));
         }
 
     }

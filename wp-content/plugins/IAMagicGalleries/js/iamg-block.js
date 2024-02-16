@@ -5,7 +5,11 @@
 
 
 (function () {
-    const debug = false;
+    let debug = false;
+    console.log("Debug set",
+        debug = true
+    );
+
     const el = wp.element.createElement;
     const iap_settings = iap_loader_settings;
     debug && console.log('In iamg-block', iap_loader_settings);
@@ -95,8 +99,20 @@
         const loader_settgins = {
             load_condition: function () {
                 const edit_class = 'interface-interface-skeleton__content';
-                return jQuery('.' + edit_class + '  .IA_Presenter_Container').length;
+                let selector = '.' + edit_class + ' .IA_Presenter_Container';
+                let containers = document.querySelectorAll(selector);
+                if (containers.length) return true;
+
+                let iframe = document.querySelector('iframe[name="editor-canvas"]');
+                if (iframe) {
+                    let iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                    let iframeContainers = iframeDocument.querySelectorAll('.IA_Presenter_Container');
+                    return iframeContainers.length;
+                }
+
+                return false;
             },
+
             after_callback: load_iamg_block_events.bind(undefined, props.attributes)
         };
 
@@ -226,6 +242,25 @@
             };
 
             let process_responce = function (response) {
+                let margin = {
+                    margin: {
+                        top: 10,
+                        bottom: 5,
+                        left: 10,
+                        right: 5,
+                    }
+                };
+
+                if (response.error) {
+                    debug && console.log('Error', response.error);
+
+                    gui.eve("gui.alert", __("Gallery was not saved successfully") + ".", [220, 70], [__("OK")], [], margin)
+                    gui.eve("gui.error", response.error)
+                    if (submit_button) submit_button.disabled = false;
+                    if (save_button) save_button.disabled = false;
+                    return;
+                }
+
                 debug && console.log('Success', response);
                 let server_settings = response["settings"] ? JSON.stringify(response["settings"]) : ""
                 debug && console.log('Properties', server_settings)
@@ -233,7 +268,8 @@
                     properties: server_settings
                 })
                 debug && console.log("Saved the post on server", props);
-                gui.eve("gui.alert", __("Gallery is saved successfully") + ".", [200, 100], [__("OK")])
+                gui.eve("gui.alert", __("Gallery is saved successfully") + ".", [200, 70], [__("OK")], undefined,
+                    margin)
                 wp.data.dispatch('core/editor').savePost()
             };
             gui.comManager.wpCommand(command,
@@ -281,25 +317,25 @@
             const gui = this;
             // debug && console.log('Creating gui..............', id);
 
-            if (window.MutationObserver) {
+            if (Snap_ia.window().MutationObserver) {
                 let observer = new MutationObserver(function (mutationList) {
                     debug && console.log("Observed Div resize")
                     gui.eve('gui.panel.resize');
                 },);
 
                 const block_container = gui.div_container.node.parentNode;
-                observer.observe(block_container, {
-                    attributes: true, attributeOldValue: false, attributeFilter: ['data-align'],
+                block_container && observer.observe(block_container, {
+                    attributes: true, attributeOldValue: false, attributeFilter: ['data-align', 'class'],
                 });
             }
 
-            if (window.ResizeObserver) {
+            if (Snap_ia.window().ResizeObserver) {
                 let observer = new ResizeObserver(function (mutationList) {
                     debug && console.log("Observed skeleton resize")
                     gui.eve('gui.panel.resize');
                 },);
                 const content_skel = document.getElementsByClassName("interface-interface-skeleton__content")[0];
-                observer.observe(content_skel)
+                content_skel && observer.observe(content_skel)
             }
             number_guis++
 
@@ -343,7 +379,7 @@
 
         if (attributes.background_color) gui.setPanelStyle({
             fill: attributes.background_color,
-            opacity: attributes.background_opacity
+            fillOpacity: attributes.background_opacity / 100
         })
 
         if (!properties["type"]) return;
@@ -413,7 +449,7 @@
         );
         return el(
             wp.blockEditor.BlockControls,
-            {key: 'controls'},
+            {key: 'toggle_toolbak'},
             el(wp.components.ToolbarButton, {
                     icon: blIconEl,
                     label: __("Toggle toolbar"),
@@ -469,8 +505,7 @@
 
         return el(
             wp.blockEditor.BlockControls,
-            {key: 'controls'},
-
+            {key: 'backgrount_color'},
             el(wp.components.ToolbarDropdownMenu, {
                 icon: blIconEl,
                 label: __("Set Background Color"),
@@ -512,7 +547,7 @@
 
         return el(
             wp.blockEditor.BlockControls,
-            {key: 'controls'},
+            {key: 'height_menu'},
 
             el(wp.components.ToolbarDropdownMenu, {
                 icon: blIconEl,
@@ -596,7 +631,7 @@
 
         return el(
             wp.blockEditor.BlockControls,
-            {key: 'controls'},
+            {key: 'element_fullscreen'},
             el(wp.components.ToolbarButton, {
                     icon: blIconEl,
                     label: __(is_full ?
@@ -697,7 +732,7 @@
                 //
                 // )
             );
-        let panel_body = el(wp.components.PanelBody, {
+        let panel_layout = el(wp.components.PanelBody, {
                 title: __('Layout'),
                 initialOpen: true,
                 className: 'IAMG_Layout_Panel_' + block_id,
@@ -739,7 +774,7 @@
                                 onChange: (colorValue) => {
                                     // colorValue(colorValue)
                                     props.setAttributes({background_color: colorValue})
-                                    if (gui) gui.setPanelStyle("fill", colorValue);
+                                    if (gui) gui.setPanelStyle({fill: colorValue});
                                 },
                                 label: __('Color'),
                                 // enableAlpha: true
@@ -756,7 +791,7 @@
                         label: __('Opacity'),
                         onChange: (value) => {
                             props.setAttributes({background_opacity: value})
-                            if (gui) gui.setPanelStyle("opacity", value);
+                            if (gui) gui.setPanelStyle({fillOpacity: value / 100});
                         },
                         value: props.attributes.background_opacity || 0,
                         min: 0,
@@ -768,7 +803,7 @@
         )
         return el(
             wp.blockEditor.InspectorControls, {},
-            panel_body,
+            is_full_allowed() ? panel_layout : null,
             panel_height,
             color_panel,
         )

@@ -22,7 +22,10 @@
 
 var IA_Presenter_loader = (function (root) {
 
-    const debug = false;
+    let debug = false;
+    console.log("Debug set",
+        debug = true
+    );
 
     var mainScripts = [
         [
@@ -147,10 +150,17 @@ var IA_Presenter_loader = (function (root) {
                 JSON.parse(JSON.minify(settings));
 
             if (!settings.html_tab_id) {
-                let ia_desing_targets = jQuery(
-                    '.IA_Designer_Container, .IA_Presenter_Container');
+                let iframe = document.querySelector('iframe[name="editor-canvas"]');
+                let iframeDocument = iframe ? (iframe.contentDocument || iframe.contentWindow.document) : null;
+                let ia_design_targets = jQuery('.IA_Designer_Container, .IA_Presenter_Container').toArray();
 
-                if (!ia_desing_targets.length) {
+                if (iframeDocument) {
+                    let iframeTargets = jQuery(iframeDocument).find('.IA_Presenter_Container').toArray();
+                    ia_design_targets = ia_design_targets.concat(iframeTargets);
+                    Snap_ia.setWindow(iframe.contentWindow);
+                }
+
+                if (!ia_design_targets.length) {
                     debug && console.log(
                         'IA_Designer_Loader: Cannot find any IA_Presenter containers...');
                     return;
@@ -158,51 +168,57 @@ var IA_Presenter_loader = (function (root) {
 
                 let time = 0;
 
-                ia_desing_targets.each(function (taget) {
-
-                    taget = Snap_ia(ia_desing_targets[taget]);
+                ia_design_targets.forEach(function (target) {
+                    let doc;
+                    if (iframeDocument) {
+                        //check target is in iframe
+                        if (iframeDocument.contains(target)) {
+                            doc = iframeDocument;
+                        }
+                    }
+                    target = Snap_ia(target);
 
                     if (settings.container_filter
                         && typeof settings.container_filter === 'function'
-                        && !settings.container_filter(taget)) return;
+                        && !settings.container_filter(target)) return;
 
                     if (settings.pre_process_container &&
                         typeof settings.pre_process_container === 'function') {
-                        settings.pre_process_container(taget);
+                        settings.pre_process_container(target);
                     }
 
-                    let gui_id = taget.attr('id');
+                    let gui_id = target.attr('id');
                     if (!gui_id) {
                         gui_id = 'IA_Designer_Container_gui' + container_count++;
-                        taget.attr('id', gui_id);
+                        target.attr('id', gui_id);
                     }
 
                     if (!processed_containers[gui_id]) {
-                        const inner_svg = taget.select('svg');
+                        const inner_svg = target.select('svg');
 
                         let pres;
                         if (inner_svg) {
                             const svg = inner_svg.node.outerHTML;
                             settings.initial_graphics = {svg: svg};
                             svg.remove();
-                        } else if (pres = taget.attr('presentation')) {
+                        } else if (pres = target.attr('presentation')) {
                             if (pres.startsWith('base64:')) {
                                 let decomp = LZString.decompressFromBase64(pres.slice(7));
                                 if (!decomp) {
                                     decomp = atob(pres.slice(7))
                                 }
                                 settings.initial_graphics = {svg: decomp};
-                                taget.attr('presentation', '');
+                                target.attr('presentation', '');
                             } else if (pres.startsWith('http')) {
                                 settings.initial_graphics = pres;
-                                // taget.attr('presentation', '');
+                                // target.attr('presentation', '');
                             }
                         }
 
                         settings.html_tab_id = gui_id;
 
                         setTimeout(process_container.bind(undefined, gui_id,
-                            Object.assign({}, settings)), time);
+                            Object.assign({}, settings), doc), time);
                         time += 200;
 
                         processed_containers[gui_id] = true;
@@ -215,15 +231,17 @@ var IA_Presenter_loader = (function (root) {
                 }
             }
 
-            function process_container(gui_id, settings) {
+            function process_container(gui_id, settings, document) {
                 let initial_graphics;
                 if (initial_graphics = settings.initial_graphics) {
                     delete settings.initial_graphics;
                 }
 
-                var gui = IA_Designer.createInterface(gui_id, settings);
+                var gui = IA_Designer.createInterface(gui_id, settings, document);
 
-                const background_color = window.getComputedStyle(document.body, null).getPropertyValue('background-color');
+                document = document || window.document;
+
+                const background_color = document.defaultView.getComputedStyle(document.body, null).getPropertyValue('background-color');
 
                 gui.div_container.setStyle({background: background_color});
 
@@ -290,7 +308,7 @@ var IA_Presenter_loader = (function (root) {
                     let local = localStorage.getItem(cache);
                     if (local) {
                         local = JSON.parse(local);
-                        if (local.url === url) {
+                        if (local.url === url && local.data) {
                             load_secure_scripts(local.data, defer);
                             done = true;
                         }
@@ -360,6 +378,7 @@ var IA_Presenter_loader = (function (root) {
         }
 
         if (settings.crypto) {
+            //this is obsolete we should use the encrypted flag in the post_scripts
             post_scripts.push('dist/ia_md5.min.js'); //todo: minify
         }
 
@@ -402,7 +421,7 @@ var IA_Presenter_loader = (function (root) {
         load_activated = undefined;
     }
 
-    let $pk = /**PK*/"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1AkiRDA8A0r3Px0C86hqACpn9Ui0EYsvxWykXEZRAz0WpyuidWPNhZqxmCwraVk8gFZyrVKCA5ghTsG184tWXPcdNK7eISTjfNpflulRM1VHofpkRlHZmstm3ay5rn9GUix7DBM+bRf/QFK3QxT4bQAzOoVvLCAa0DDEiwklquC63XPWv3JMW4kg1R356zQB/AheE/Ay1CGzHzTgn1kpPFrbLSz4DUYmuJqpQW5x9RawQ/wHsMbZFfuv9aqvhPoMsstmalAJ90DNWU8K/GU8RWxZdIksMQGvBVVOPHtwh0LYLfXGNdQvIOv9WlbjL/oFNukjngoD5Vv4cUu8Y4Tz4QIDAQAB"/**PK*/;
+    let $pk = /**PK*/"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyQyqJD+mQxvodfC7EUghLtN+UZtJi/Q9oDgZ84pT0k0VbbnriSDssSQwDmr4DR9GwYo1ui0xlQelU0Pugnt9vR5r/xSdypQGFBIXSEdK1DTLJuWXlc9a2FdabdExxIF1oVYB5h14dsYVox/GPbhOcimZBA2jEClzk3KpEevBgtDU8e3Hcb58Tv0NPKaDKBLE6H/JU664/zoTawJfPQ4KpG84t1qpvB2DJIDZQDwDwNOYH+/PAOlYNboJsoACeD0373a14jAnXVv+ntPqbsqSkcjC9cj7A7IbkQUnOQ3vl8WOOAQlLd0sYXhDGAvAkW0bpKt4T3PRHvwhf+YVBMHwnwIDAQAB"/**PK*/;
 
     async function load_secure_scripts(scripts, defer) {
         if (!Array.isArray(scripts)) {

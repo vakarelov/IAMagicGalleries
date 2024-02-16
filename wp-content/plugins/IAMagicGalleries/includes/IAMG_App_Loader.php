@@ -6,24 +6,25 @@
 
 /*
  * Copyright © 2023  Information Aesthetics. All rights reserved.
- * This work is licensed under the GPL2, V2 license.
+* This work is licensed under the GPL2, V2 license.
  */
 
 if (!defined('WPINC')) {
     die;
 }
-if (!class_exists('IAMagicGalleries/Client')) {
-    require_once(IAMG_CLASSES_PATH . 'Client.php');
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed
+
+if (!class_exists('IAMagicGalleries/IAMG_Client')) {
+    require_once(IAMG_CLASSES_PATH . 'IAMG_Client.php');
 }
 
-//if (!class_exists('IAMagicGalleries/AppSettings')) {
-require_once(IAMG_CLASSES_PATH . 'AppSettingsBuilder.php');
+require_once(IAMG_CLASSES_PATH . 'IAMG_AppSettingsBuilder.php');
 
-//}
 
-use IAMagicGalleries\AdminNotice;
-use IAMagicGalleries\AppSettingsBuilder;
-use IAMagicGalleries\Client;
+use IAMagicGalleries\IAMG_AdminNotice;
+use IAMagicGalleries\IAMG_AppSettingsBuilder;
+use IAMagicGalleries\IAMG_Client;
+use IAMagicGalleries\IAMG_Nonce;
 
 class IAMG_App_Loader
 {
@@ -31,11 +32,12 @@ class IAMG_App_Loader
 
     private $client;
 
-    const USE_MINIFIED = false; //!WP_DEBUG; //false;
+    const USE_MINIFIED = false;
 //    const USE_MINIFIED = true;
 
     function __construct()
     {
+
         add_action('wp_enqueue_scripts', [$this, 'load_IAMG_Scripts']);
         add_action('admin_enqueue_scripts', [$this, 'load_IAMG_Scripts_Admin']);
         add_shortcode('ia_magic_gallery', [$this, 'shortcode_render']);
@@ -69,6 +71,7 @@ class IAMG_App_Loader
 
     function enqueue_script($post_scripts = null, $width = 680, $height = 600)
     {
+
         if ($this->scripts_enqueued) {
             return;
         }
@@ -85,10 +88,12 @@ class IAMG_App_Loader
             IAMG_VERSION
         );
 
-        $app_settings_handler = new AppSettingsBuilder();
+        $app_settings_handler = new IAMG_AppSettingsBuilder();
+
+        $settings = $app_settings_handler->setup_load_json($post_scripts, null, 'linked', false, $width, $height);
 
         wp_localize_script('IAPresenter_boot', 'iamg_settings',
-            $app_settings_handler->setup_load_json($post_scripts, null, 'linked', false, $width, $height)
+            $settings
         );
 
         $this->enque_styles();
@@ -107,6 +112,7 @@ class IAMG_App_Loader
     {
         $post_type = strtolower(get_post_type());
         if ($post_type === strtolower(IAMG_POST_TYPE)) {
+            IAMG_Nonce::setNonce();
 //            print_r("In load_IAMG_Scripts");
             $extra = [[$this->script_selector('presentation_expander'), 'presentation_expander_loaded']];
             $extra = null;
@@ -121,6 +127,7 @@ class IAMG_App_Loader
 
 
         if ($screen->id === strtolower(IAMG_POST_TYPE)) {
+            IAMG_Nonce::setNonce();
             $this->load_iamg_editor_files();
         }
     }
@@ -140,8 +147,9 @@ class IAMG_App_Loader
             IAMG_VERSION
         );
 
-        $initial_graphics = admin_url('admin-ajax.php') . "?action=iamg_builder_pres"."&_nonce=" . wp_create_nonce('iamg_admin_direct');
-        $app_settings_handler = new AppSettingsBuilder($initial_graphics);
+        $version = get_option(IAMG_SLUG . IAMG_Client::ADMIN_EDITOR_VERSION);
+        $initial_graphics = admin_url('admin-ajax.php') . "?action=iamg_builder_pres&v=".$version ;
+        $app_settings_handler = new IAMG_AppSettingsBuilder($initial_graphics);
 
         $iamg_settings = $app_settings_handler->setup_load_json([
 //                    [$this->script_selector('presentation_expander'), 'presentation_expander_loaded']
@@ -172,6 +180,7 @@ class IAMG_App_Loader
         $this->scripts_enqueued = true;
 
 //        print_r("In Caching Code: <br>");
+        IAMG_Nonce::setNonce();
 
         wp_register_script('lz-string', IAMG_URL . $this->script_selector('js/dist/lz-string'));
 
@@ -186,7 +195,7 @@ class IAMG_App_Loader
 
         wp_localize_script('IAPresenter_boot', 'iamg_settings',
             [
-                "settings" => ['pre_scripts' => (new AppSettingsBuilder())->get_app_link()],
+                "settings" => ['pre_scripts' => (new IAMG_AppSettingsBuilder())->get_app_link()],
                 "resources" => IAMG_JS_URL
             ]);
 
@@ -206,7 +215,6 @@ class IAMG_App_Loader
             'background_opacity' => 0
         ), $atts);
 
-//        print_r("In Short Code: " . json_encode((array)$atts) . " " . json_encode($a) . "<br>");
 
 //        $post = get_post($a['id']);
 
@@ -328,6 +336,7 @@ class IAMG_App_Loader
             }
         }
         if ($result) {
+            IAMG_Nonce::setNonce();
             $this->enqueue_script($additional_scripts, null, null);
 
             $needle = 'class="';
@@ -343,10 +352,10 @@ class IAMG_App_Loader
         return null;
     }
 
-    private function getClient(): Client
+    private function getClient(): IAMG_Client
     {
         if (!$this->client) {
-            $this->client = new Client();
+            $this->client = new IAMG_Client();
         }
         return $this->client;
     }
@@ -358,7 +367,7 @@ class IAMG_App_Loader
     {
         $time_script = $this->getClient()->get_app_time();
         if (!isset($_COOKIE["iamg_lib_loaded"]) || (int)$_COOKIE["iamg_lib_loaded"] < $time_script) {
-            setcookie("iamg_lib_loaded", $time_script);
+            setcookie("iamg_lib_loaded", $time_script, $time_script, '/');
             add_action('wp_footer', [$this, 'enqueue_script_for_caching']);
         }
     }

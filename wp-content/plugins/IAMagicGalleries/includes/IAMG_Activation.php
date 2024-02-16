@@ -4,11 +4,13 @@
  * This work is licensed under the GPL2, V2 license.
  */
 
-require_once(IAMG_CLASSES_PATH . "Client.php");
-require_once(IAMG_CLASSES_PATH . 'AdminNotice.php');
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed
 
-use IAMagicGalleries\AdminNotice;
-use IAMagicGalleries\Client;
+require_once(IAMG_CLASSES_PATH . "IAMG_Client.php");
+require_once(IAMG_CLASSES_PATH . 'IAMG_AdminNotice.php');
+
+use IAMagicGalleries\IAMG_AdminNotice;
+use IAMagicGalleries\IAMG_Client;
 
 class IAMG_Activation
 {
@@ -17,8 +19,8 @@ class IAMG_Activation
 
     function __construct()
     {
-        $this->client = new Client();
-        if (is_admin()){
+        $this->client = new IAMG_Client();
+        if (is_admin()) {
             register_activation_hook(IAMG_MAIN_FILE, [$this, 'iamg_plugin_activate']);
             //deactivation hook also exists in IAMG_LibHandler.php
 
@@ -27,10 +29,12 @@ class IAMG_Activation
             add_action('admin_init', [$this, 'load_plugin']);
         }
 
-        if (true || !$this->client->is_local_server()) {
+        if (/**TESTING*/ true || /**TESTING/*/ !$this->client->is_local_server()) {
             add_action('wp_ajax_nopriv_iamg_verify', [$this, 'verify_wp_server']);
 
+            /**TESTING*/
 //            add_action('wp_ajax_iamg_verify', [$this, 'verify_wp_server']); // todo: remove in production
+            /**TESTING/*/
         }
     }
 
@@ -58,13 +62,13 @@ class IAMG_Activation
 //        return ["success" => false, "error" => "Early end"];
 
         $registered = $client->register_client();
-//        update_option($client->get_slug() . '_called_reg_client', $registered); //for debugging
+        update_option($client->get_slug() . '_called_reg_client', $registered); //for debugging
         if ($registered === "local_server_user_agent_problem") {
             $success = $client->unregister_local();
 
             if (!$success) {
                 $message = 'You are running a local server, you have likely activated the plugin on a different
-                 local server, and you are also running a publicly accessible wordpress site on the same public IP address. To resolve the issue, please create a ticket at ???';
+                 local server, and you are also running a publicly accessible wordpress site on the same public IP address. To resolve the issue, please contact support@iaesth.ca';
                 return ["success" => false, "error" => $message];
 
 //                return $this->end_activation($message);
@@ -85,9 +89,8 @@ class IAMG_Activation
         return ["success" => true];
     }
 
-    private function update_app()
+    public function update_app()
     {
-//        error_log("In function update_app");
         $this->client->update_app_script();
     }
 
@@ -109,7 +112,9 @@ class IAMG_Activation
                 $result = $this->first_register();
                 if (!$result["success"]) {
 //                    AdminNotice::display_notice("A notice here using display notice5");
-                    $this->end_activation("Ending");
+                    $this->end_activation(
+                        $result["error"]
+                    );
                 }
             }
 
@@ -135,11 +140,13 @@ class IAMG_Activation
         // to verify it and the many not be able to update the app library if needed.
         // The addresses ensure that no other client can access the plugin to initiate the operation.
         $allow_addresses = [
-            '107.161.24.204', //iaesth.ca
-            '192.184.90.53', //infoaesthetics.ca
-            '192.168.56.101', //for debugging
+            /**TESTING*/
+            '192.168.56.101',
             '127.0.0.1',
-            '::1'
+            '::1',
+            /**TESTING/*/
+            '107.161.24.204', //iaesth.ca
+            '192.184.90.53' //infoaesthetics.ca
         ];
 
 
@@ -148,10 +155,14 @@ class IAMG_Activation
             die();
         };
 
+        $encrypt = $this->client->encrypt($this->client->basename); //sings the response to the server
+        //The SAS will verify the plugin by decrypting the secret with the unique private key and comparing it to the plugin basename.
+        $encrypt[0] = base64_encode($encrypt[0]);
         $responce = [
             "plugin" => $this->client->basename,
             "wp_url" => esc_url(home_url()),
-            "secret" => $this->client->encrypt($this->client->basename)];
+            "secret" => $encrypt
+        ];
 
         if ((isset($_POST["update_app"]) && $_POST["update_app"])
             || (isset($_GET["update_app"]) && $_GET["update_app"])
@@ -165,22 +176,26 @@ class IAMG_Activation
         }
     }
 
-    private function run_after_send_json($response, $callback, $status_code = null, $options = 0)
+    private function run_after_send_json($response, $callback, $status_code = null)
     {
         if (defined('REST_REQUEST') && REST_REQUEST) {
             _doing_it_wrong(
                 __FUNCTION__,
-                sprintf(
+                esc_html(sprintf(
                 /* translators: 1: WP_REST_Response, 2: WP_Error */
                     __('Return a %1$s or %2$s object from your callback when using the REST API.'),
                     'WP_REST_Response',
                     'WP_Error'
-                ),
+                )),
                 '5.5.0'
             );
         }
 
-        set_time_limit(0);
+
+// Extending the execution time of the script here is recommended because the server needs to execute a curl call to the SAS and respond to a possible timeout with calling a backup SAS.
+//
+// This line is called on a very rare circumstance, when an external request for a player update is issued from the SAS, for security reasons.
+        set_time_limit(60);
 
         ob_start();
 
@@ -188,7 +203,8 @@ class IAMG_Activation
             header('Content-Type: application/json; charset=' . get_option('blog_charset'));
         }
 
-        echo wp_json_encode($response, $options);
+        //This is trusted output sent to the SAS server.
+        echo wp_json_encode($response);
 
         header('Connection: close');
         header('Content-Length: ' . ob_get_length());
@@ -235,16 +251,18 @@ class IAMG_Activation
 
     private function end_activation($error_message)
     {
-        AdminNotice::display_notice($error_message, AdminNotice::ERROR);
+        IAMG_AdminNotice::display_notice($error_message, IAMG_AdminNotice::ERROR);
+
         deactivate_plugins(plugin_basename(__FILE__));
+
         return false;
     }
 
     public static function uninstall()
     {
-        (new Client())->unregister();
+        (new IAMG_Client())->unregister();
 
-        $save_posts = get_option(IAMGComDispacher::_get_setting_option_name('preserve_posts'), false);
+        $save_posts = get_option(IAMG_ComDispatcher::_get_setting_option_name('preserve_posts'), false);
 
 
         //remove all options with the plugin slug given by IAMG_SLUG
