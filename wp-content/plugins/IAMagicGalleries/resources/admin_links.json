@@ -1,4 +1,0 @@
-{
-  "home": ["mg_view_init", "logo_view_main", "init_view"],
-  "shape_morph": ["mg_view_main", "logo_view_main", "shape_morph_main"]
-}
